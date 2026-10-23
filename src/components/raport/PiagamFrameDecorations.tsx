@@ -206,56 +206,65 @@ export function getColorTheme(themeId: PiagamColorTheme): ColorThemeOption {
 interface PiagamFrameDecoratorProps {
   style: PiagamBorderStyle;
   colorTheme: PiagamColorTheme;
+  showInnerBorder?: boolean;
 }
 
 export const PiagamFrameDecorator: React.FC<PiagamFrameDecoratorProps> = ({
   style,
-  colorTheme
+  colorTheme,
+  showInnerBorder = false
 }) => {
   const theme = getColorTheme(colorTheme);
 
   switch (style) {
     case 'batik_nusantara':
-      return <BatikNusantaraFrame theme={theme} />;
+      return <BatikNusantaraFrame theme={theme} showInnerBorder={showInnerBorder} />;
     case 'guilloche_security':
-      return <GuillocheSecurityFrame theme={theme} />;
+      return <GuillocheSecurityFrame theme={theme} showInnerBorder={showInnerBorder} />;
     case 'laurel_honor':
-      return <LaurelHonorFrame theme={theme} />;
+      return <LaurelHonorFrame theme={theme} showInnerBorder={showInnerBorder} />;
     case 'geometric_star':
-      return <GeometricStarFrame theme={theme} />;
+      return <GeometricStarFrame theme={theme} showInnerBorder={showInnerBorder} />;
     case 'art_deco_luxury':
-      return <ArtDecoLuxuryFrame theme={theme} />;
+      return <ArtDecoLuxuryFrame theme={theme} showInnerBorder={showInnerBorder} />;
     case 'celestial_stars':
-      return <CelestialStarsFrame theme={theme} />;
+      return <CelestialStarsFrame theme={theme} showInnerBorder={showInnerBorder} />;
     case 'vintage_scroll':
-      return <VintageScrollFrame theme={theme} />;
+      return <VintageScrollFrame theme={theme} showInnerBorder={showInnerBorder} />;
     case 'diplomatic_classic':
-      return <DiplomaticClassicFrame theme={theme} />;
+      return <DiplomaticClassicFrame theme={theme} showInnerBorder={showInnerBorder} />;
     case 'royal_baroque':
     default:
-      return <RoyalBaroqueFrame theme={theme} />;
+      return <RoyalBaroqueFrame theme={theme} showInnerBorder={showInnerBorder} />;
   }
 };
 
 // -------------------------------------------------------------------------------
 // 1. MODEL: ROYAL BAROQUE (Ukiran Emas Kerajaan)
 // -------------------------------------------------------------------------------
-const RoyalBaroqueFrame: React.FC<{ theme: ColorThemeOption }> = ({ theme }) => {
+const RoyalBaroqueFrame: React.FC<{ theme: ColorThemeOption; showInnerBorder?: boolean }> = ({
+  theme,
+  showInnerBorder = false
+}) => {
   return (
     <>
-      {/* Garis Dalam Ganda dengan Sudut Inset */}
-      <div
-        className="absolute inset-2 sm:inset-3 border-2 pointer-events-none"
-        style={{ borderColor: theme.gold }}
-      />
-      <div
-        className="absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
-        style={{ borderColor: theme.primary, opacity: 0.7 }}
-      />
-      <div
-        className="absolute inset-5 sm:inset-6 border border-dashed pointer-events-none"
-        style={{ borderColor: theme.gold, opacity: 0.55 }}
-      />
+      {/* Garis Persegi Dalam (Hanya ditampilkan jika diaktifkan, dan selalu disembunyikan saat cetak) */}
+      {showInnerBorder && (
+        <>
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-2 sm:inset-3 border-2 pointer-events-none"
+            style={{ borderColor: theme.gold }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
+            style={{ borderColor: theme.primary, opacity: 0.7 }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-5 sm:inset-6 border border-dashed pointer-events-none"
+            style={{ borderColor: theme.gold, opacity: 0.55 }}
+          />
+        </>
+      )}
 
       {/* Ornamen 4 Sudut Baroque Filigree */}
       <CornerBaroque position="top-left" theme={theme} />
@@ -339,21 +348,28 @@ const CornerBaroque: React.FC<{
 // -------------------------------------------------------------------------------
 // 2. MODEL: BATIK NUSANTARA (Parang & Kawung Tradisional)
 // -------------------------------------------------------------------------------
-const BatikNusantaraFrame: React.FC<{ theme: ColorThemeOption }> = ({ theme }) => {
+const BatikNusantaraFrame: React.FC<{ theme: ColorThemeOption; showInnerBorder?: boolean }> = ({
+  theme,
+  showInnerBorder = false
+}) => {
   return (
     <>
-      <div
-        className="absolute inset-2 sm:inset-3 border-2 pointer-events-none"
-        style={{ borderColor: theme.primary }}
-      />
-      <div
-        className="absolute inset-3.5 sm:inset-4.5 border border-dashed pointer-events-none"
-        style={{ borderColor: theme.gold, opacity: 0.8 }}
-      />
-      <div
-        className="absolute inset-5 sm:inset-6 border pointer-events-none"
-        style={{ borderColor: theme.primary, opacity: 0.4 }}
-      />
+      {showInnerBorder && (
+        <>
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-2 sm:inset-3 border-2 pointer-events-none"
+            style={{ borderColor: theme.primary }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-3.5 sm:inset-4.5 border border-dashed pointer-events-none"
+            style={{ borderColor: theme.gold, opacity: 0.8 }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-5 sm:inset-6 border pointer-events-none"
+            style={{ borderColor: theme.primary, opacity: 0.4 }}
+          />
+        </>
+      )}
 
       <CornerBatik position="top-left" theme={theme} />
       <CornerBatik position="top-right" theme={theme} />
@@ -409,22 +425,29 @@ const CornerBatik: React.FC<{
 // -------------------------------------------------------------------------------
 // 3. MODEL: GUILLOCHE SECURITY (Roset Sekuriti Ijazah Resmi)
 // -------------------------------------------------------------------------------
-const GuillocheSecurityFrame: React.FC<{ theme: ColorThemeOption }> = ({ theme }) => {
+const GuillocheSecurityFrame: React.FC<{ theme: ColorThemeOption; showInnerBorder?: boolean }> = ({
+  theme,
+  showInnerBorder = false
+}) => {
   return (
     <>
-      <div
-        className="absolute inset-2 sm:inset-3 border-2 pointer-events-none"
-        style={{ borderColor: theme.primary }}
-      />
-      <div
-        className="absolute inset-3 sm:inset-4 border pointer-events-none"
-        style={{ borderColor: theme.gold }}
-      />
-      {/* Wave pattern effect on outer edge */}
-      <div
-        className="absolute inset-4.5 sm:inset-5.5 border-2 border-double pointer-events-none"
-        style={{ borderColor: theme.primary, opacity: 0.7 }}
-      />
+      {showInnerBorder && (
+        <>
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-2 sm:inset-3 border-2 pointer-events-none"
+            style={{ borderColor: theme.primary }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-3 sm:inset-4 border pointer-events-none"
+            style={{ borderColor: theme.gold }}
+          />
+          {/* Wave pattern effect on outer edge */}
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-4.5 sm:inset-5.5 border-2 border-double pointer-events-none"
+            style={{ borderColor: theme.primary, opacity: 0.7 }}
+          />
+        </>
+      )}
 
       <CornerGuilloche position="top-left" theme={theme} />
       <CornerGuilloche position="top-right" theme={theme} />
@@ -478,21 +501,28 @@ const CornerGuilloche: React.FC<{
 // -------------------------------------------------------------------------------
 // 4. MODEL: LAUREL HONOR (Karangan Daun Kemenangan)
 // -------------------------------------------------------------------------------
-const LaurelHonorFrame: React.FC<{ theme: ColorThemeOption }> = ({ theme }) => {
+const LaurelHonorFrame: React.FC<{ theme: ColorThemeOption; showInnerBorder?: boolean }> = ({
+  theme,
+  showInnerBorder = false
+}) => {
   return (
     <>
-      <div
-        className="absolute inset-2 sm:inset-3 border-2 pointer-events-none"
-        style={{ borderColor: theme.primary }}
-      />
-      <div
-        className="absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
-        style={{ borderColor: theme.gold, opacity: 0.8 }}
-      />
-      <div
-        className="absolute inset-5 sm:inset-6 border border-dashed pointer-events-none"
-        style={{ borderColor: theme.primary, opacity: 0.4 }}
-      />
+      {showInnerBorder && (
+        <>
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-2 sm:inset-3 border-2 pointer-events-none"
+            style={{ borderColor: theme.primary }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
+            style={{ borderColor: theme.gold, opacity: 0.8 }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-5 sm:inset-6 border border-dashed pointer-events-none"
+            style={{ borderColor: theme.primary, opacity: 0.4 }}
+          />
+        </>
+      )}
 
       <CornerLaurel position="top-left" theme={theme} />
       <CornerLaurel position="top-right" theme={theme} />
@@ -553,21 +583,28 @@ const CornerLaurel: React.FC<{
 // -------------------------------------------------------------------------------
 // 5. MODEL: GEOMETRIC STAR (Bintang Prestasi 8 Arah & Simpul Arabesque)
 // -------------------------------------------------------------------------------
-const GeometricStarFrame: React.FC<{ theme: ColorThemeOption }> = ({ theme }) => {
+const GeometricStarFrame: React.FC<{ theme: ColorThemeOption; showInnerBorder?: boolean }> = ({
+  theme,
+  showInnerBorder = false
+}) => {
   return (
     <>
-      <div
-        className="absolute inset-2 sm:inset-3 border-2 pointer-events-none"
-        style={{ borderColor: theme.primary }}
-      />
-      <div
-        className="absolute inset-4 sm:inset-5 border pointer-events-none"
-        style={{ borderColor: theme.gold }}
-      />
-      <div
-        className="absolute inset-5.5 sm:inset-6.5 border pointer-events-none"
-        style={{ borderColor: theme.primary, opacity: 0.5 }}
-      />
+      {showInnerBorder && (
+        <>
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-2 sm:inset-3 border-2 pointer-events-none"
+            style={{ borderColor: theme.primary }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-4 sm:inset-5 border pointer-events-none"
+            style={{ borderColor: theme.gold }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-5.5 sm:inset-6.5 border pointer-events-none"
+            style={{ borderColor: theme.primary, opacity: 0.5 }}
+          />
+        </>
+      )}
 
       <CornerGeoStar position="top-left" theme={theme} />
       <CornerGeoStar position="top-right" theme={theme} />
@@ -619,21 +656,28 @@ const CornerGeoStar: React.FC<{
 // -------------------------------------------------------------------------------
 // 6. MODEL: ART DECO LUXURY (Gatsby Gold Stepped Corners)
 // -------------------------------------------------------------------------------
-const ArtDecoLuxuryFrame: React.FC<{ theme: ColorThemeOption }> = ({ theme }) => {
+const ArtDecoLuxuryFrame: React.FC<{ theme: ColorThemeOption; showInnerBorder?: boolean }> = ({
+  theme,
+  showInnerBorder = false
+}) => {
   return (
     <>
-      <div
-        className="absolute inset-2 sm:inset-3 border-2 pointer-events-none"
-        style={{ borderColor: theme.gold }}
-      />
-      <div
-        className="absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
-        style={{ borderColor: theme.primary }}
-      />
-      <div
-        className="absolute inset-5 sm:inset-6 border pointer-events-none"
-        style={{ borderColor: theme.gold, opacity: 0.6 }}
-      />
+      {showInnerBorder && (
+        <>
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-2 sm:inset-3 border-2 pointer-events-none"
+            style={{ borderColor: theme.gold }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
+            style={{ borderColor: theme.primary }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-5 sm:inset-6 border pointer-events-none"
+            style={{ borderColor: theme.gold, opacity: 0.6 }}
+          />
+        </>
+      )}
 
       <CornerArtDeco position="top-left" theme={theme} />
       <CornerArtDeco position="top-right" theme={theme} />
@@ -682,21 +726,28 @@ const CornerArtDeco: React.FC<{
 // -------------------------------------------------------------------------------
 // 7. MODEL: CELESTIAL STARS (Rasi Bintang & Lencana Modern)
 // -------------------------------------------------------------------------------
-const CelestialStarsFrame: React.FC<{ theme: ColorThemeOption }> = ({ theme }) => {
+const CelestialStarsFrame: React.FC<{ theme: ColorThemeOption; showInnerBorder?: boolean }> = ({
+  theme,
+  showInnerBorder = false
+}) => {
   return (
     <>
-      <div
-        className="absolute inset-2 sm:inset-3 border-2 pointer-events-none"
-        style={{ borderColor: theme.primary }}
-      />
-      <div
-        className="absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
-        style={{ borderColor: theme.gold }}
-      />
-      <div
-        className="absolute inset-5 sm:inset-6 border border-dotted pointer-events-none"
-        style={{ borderColor: theme.primary, opacity: 0.6 }}
-      />
+      {showInnerBorder && (
+        <>
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-2 sm:inset-3 border-2 pointer-events-none"
+            style={{ borderColor: theme.primary }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
+            style={{ borderColor: theme.gold }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-5 sm:inset-6 border border-dotted pointer-events-none"
+            style={{ borderColor: theme.primary, opacity: 0.6 }}
+          />
+        </>
+      )}
 
       <CornerCelestial position="top-left" theme={theme} />
       <CornerCelestial position="top-right" theme={theme} />
@@ -750,17 +801,24 @@ const CornerCelestial: React.FC<{
 // -------------------------------------------------------------------------------
 // 8. MODEL: VINTAGE SCROLL (Renda Daun Victorian Kuno)
 // -------------------------------------------------------------------------------
-const VintageScrollFrame: React.FC<{ theme: ColorThemeOption }> = ({ theme }) => {
+const VintageScrollFrame: React.FC<{ theme: ColorThemeOption; showInnerBorder?: boolean }> = ({
+  theme,
+  showInnerBorder = false
+}) => {
   return (
     <>
-      <div
-        className="absolute inset-2 sm:inset-3 border-2 border-double pointer-events-none"
-        style={{ borderColor: theme.primary }}
-      />
-      <div
-        className="absolute inset-4 sm:inset-5 border border-dashed pointer-events-none"
-        style={{ borderColor: theme.gold, opacity: 0.8 }}
-      />
+      {showInnerBorder && (
+        <>
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-2 sm:inset-3 border-2 border-double pointer-events-none"
+            style={{ borderColor: theme.primary }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-4 sm:inset-5 border border-dashed pointer-events-none"
+            style={{ borderColor: theme.gold, opacity: 0.8 }}
+          />
+        </>
+      )}
 
       <CornerVintage position="top-left" theme={theme} />
       <CornerVintage position="top-right" theme={theme} />
@@ -809,22 +867,29 @@ const CornerVintage: React.FC<{
 // -------------------------------------------------------------------------------
 // 9. MODEL: DIPLOMATIC CLASSIC (Greek Key Meander Diplomat)
 // -------------------------------------------------------------------------------
-const DiplomaticClassicFrame: React.FC<{ theme: ColorThemeOption }> = ({ theme }) => {
+const DiplomaticClassicFrame: React.FC<{ theme: ColorThemeOption; showInnerBorder?: boolean }> = ({
+  theme,
+  showInnerBorder = false
+}) => {
   return (
     <>
       {/* Bingkai Triple Border Tajam */}
-      <div
-        className="absolute inset-2 sm:inset-3 border-2 pointer-events-none"
-        style={{ borderColor: theme.primary }}
-      />
-      <div
-        className="absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
-        style={{ borderColor: theme.gold }}
-      />
-      <div
-        className="absolute inset-5 sm:inset-6 border pointer-events-none"
-        style={{ borderColor: theme.primary, opacity: 0.6 }}
-      />
+      {showInnerBorder && (
+        <>
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-2 sm:inset-3 border-2 pointer-events-none"
+            style={{ borderColor: theme.primary }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-3.5 sm:inset-4.5 border pointer-events-none"
+            style={{ borderColor: theme.gold }}
+          />
+          <div
+            className="piagam-inner-rect-line print:hidden absolute inset-5 sm:inset-6 border pointer-events-none"
+            style={{ borderColor: theme.primary, opacity: 0.6 }}
+          />
+        </>
+      )}
 
       <CornerDiplomatic position="top-left" theme={theme} />
       <CornerDiplomatic position="top-right" theme={theme} />
