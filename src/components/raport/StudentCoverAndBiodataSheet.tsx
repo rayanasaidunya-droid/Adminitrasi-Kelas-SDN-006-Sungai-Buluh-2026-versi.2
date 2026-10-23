@@ -520,13 +520,13 @@ export const StudentCoverAndBiodataSheet: React.FC<StudentCoverAndBiodataSheetPr
                   <td className="py-0.5 border-none border-0"></td>
                   <td className="py-0.5 pl-4 text-slate-800 border-none border-0">a. Nama Ayah Kandung</td>
                   <td className="py-0.5 text-center font-semibold text-slate-800 border-none border-0">:</td>
-                  <td className="py-0.5 font-bold text-slate-900 uppercase border-none border-0">{student.namaAyah || '-'}</td>
+                  <td className="py-0.5 font-bold text-slate-900 border-none border-0">{student.namaAyah || '-'}</td>
                 </tr>
                 <tr className="border-none border-0">
                   <td className="py-0.5 border-none border-0"></td>
                   <td className="py-0.5 pl-4 text-slate-800 border-none border-0">b. Nama Ibu Kandung</td>
                   <td className="py-0.5 text-center font-semibold text-slate-800 border-none border-0">:</td>
-                  <td className="py-0.5 font-bold text-slate-900 uppercase border-none border-0">{student.namaIbu || '-'}</td>
+                  <td className="py-0.5 font-bold text-slate-900 border-none border-0">{student.namaIbu || '-'}</td>
                 </tr>
                 <tr className="border-none border-0">
                   <td className="py-0.5 border-none border-0"></td>
