@@ -36,7 +36,12 @@ import {
   Download,
   Hash,
   Sliders,
-  Settings
+  Settings,
+  UserCheck,
+  Users,
+  RefreshCw,
+  Search,
+  X
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -54,6 +59,9 @@ export type { PiagamBorderStyle, PiagamColorTheme, PiagamSealType };
 export type PiagamPaperSize = 'A4' | 'F4';
 
 export interface PiagamCustomData {
+  namaSiswa?: string;
+  nis?: string;
+  nisn?: string;
   nomorPiagam?: string;
   kategoriPrestasi?: string;
   catatanApresiasi?: string;
@@ -271,6 +279,10 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
   const [isEditingCustom, setIsEditingCustom] = useState(false);
   const [isFrameModalOpen, setIsFrameModalOpen] = useState(false);
 
+  // Mode Pengurutan & Pencarian Siswa dari Modul Data Siswa
+  const [studentSortOrder, setStudentSortOrder] = useState<'rank' | 'absen' | 'nama'>('rank');
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
+
   // Konfigurasi Penomoran Otomatis Piagam Standar Sekolah (e.g. '001/SDN006/PP/XI/2024')
   const [numberingConfig, setNumberingConfig] = useState<PiagamNumberingConfig>(() =>
     loadPiagamNumberingConfig(schoolInfo.schoolName)
@@ -329,12 +341,68 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
     return `Atas dedikasi, kedisiplinan, serta prestasi akademik luar biasa sebagai ${gelarInfo.subtitle} dengan perolehan Rata-Rata Nilai ${activeStudentScore.avg} (Total Skor: ${activeStudentScore.total}) pada ${periodLabel} Tahun Pelajaran ${schoolInfo.academicYear}.`;
   }, [gelarInfo, activeStudentScore, isMid, schoolInfo.semester, schoolInfo.academicYear]);
 
-  // Current active student custom or default data
+  // Current active student custom or default data (auto-synced with Data Siswa module)
   const currentCustom = customDataMap[selectedStudent?.id || ''] || {};
+  const currentNamaSiswa = currentCustom.namaSiswa !== undefined ? currentCustom.namaSiswa : (selectedStudent?.nama || '');
+  const currentNis = currentCustom.nis !== undefined ? currentCustom.nis : (selectedStudent?.nis || '');
+  const currentNisn = currentCustom.nisn !== undefined ? currentCustom.nisn : (selectedStudent?.nisn || '');
   const currentNomor = currentCustom.nomorPiagam || defaultNomorPiagam;
   const currentKategori = currentCustom.kategoriPrestasi || defaultKategoriPrestasi;
   const currentTanggal = currentCustom.tanggalPiagam || defaultTanggalPiagam;
   const currentCatatan = currentCustom.catatanApresiasi || defaultCatatanApresiasi;
+
+  // Handler memilih nama siswa dari dropdown untuk mengisi field nama & template piagam secara otomatis
+  const handleSelectStudentFromDataSiswa = (studentId: string) => {
+    const st = students.find(s => s.id === studentId);
+    if (!st) return;
+
+    setSelectedStudentId(studentId);
+    if (onSelectStudentId) onSelectStudentId(studentId);
+
+    // Otomatis tarik data siswa dari Data Siswa ke template piagam
+    setCustomDataMap(prev => {
+      const existing = prev[studentId] || {};
+      return {
+        ...prev,
+        [studentId]: {
+          ...existing,
+          namaSiswa: existing.namaSiswa || st.nama,
+          nis: existing.nis !== undefined ? existing.nis : (st.nis || ''),
+          nisn: existing.nisn !== undefined ? existing.nisn : (st.nisn || '')
+        }
+      };
+    });
+
+    addToast(
+      'info',
+      'Data Siswa Berhasil Ditarik',
+      `Data ananda ${st.nama} (NISN: ${st.nisn || '-'}) berhasil dimuat dari Modul Data Siswa ke template piagam.`
+    );
+  };
+
+  // Handler tarik ulang / sinkronisasi data langsung dari Modul Data Siswa
+  const handleSyncStudentFromDataSiswa = (targetStudentId?: string) => {
+    const targetId = targetStudentId || selectedStudent?.id;
+    if (!targetId) return;
+    const st = students.find(s => s.id === targetId);
+    if (!st) return;
+
+    setCustomDataMap(prev => ({
+      ...prev,
+      [targetId]: {
+        ...(prev[targetId] || {}),
+        namaSiswa: st.nama,
+        nis: st.nis || '',
+        nisn: st.nisn || ''
+      }
+    }));
+
+    addToast(
+      'success',
+      'Sinkronisasi Data Siswa Selesai',
+      `Field Nama (${st.nama}), NIS (${st.nis || '-'}), dan NISN (${st.nisn || '-'}) telah disinkronkan kembali dari Modul Data Siswa.`
+    );
+  };
 
   const handleUpdateCurrentStudentCustom = (fields: Partial<PiagamCustomData>) => {
     if (!selectedStudent) return;
@@ -439,6 +507,52 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
     }
   };
 
+  // Daftar seluruh siswa dari Modul Data Siswa (dengan pengurutan fleksibel dan pencarian nama/NISN)
+  const availableStudentsFromModule = useMemo(() => {
+    let list = [...students];
+
+    // Pengurutan
+    if (studentSortOrder === 'rank') {
+      list.sort((a, b) => {
+        const rA = rankingsMap.get(a.id) ?? 999;
+        const rB = rankingsMap.get(b.id) ?? 999;
+        return rA - rB;
+      });
+    } else if (studentSortOrder === 'absen') {
+      list.sort((a, b) => (a.nomorAbsen || 0) - (b.nomorAbsen || 0));
+    } else if (studentSortOrder === 'nama') {
+      list.sort((a, b) => a.nama.localeCompare(b.nama));
+    }
+
+    // Filter Cepat (Podium / Top) hanya jika tidak sedang mencari teks spesifik
+    if (!studentSearchQuery.trim()) {
+      if (filterMode === 'top3') {
+        const top3Ids = new Set(sortedStudentsByRank.slice(0, 3).map(s => s.id));
+        list = list.filter(s => top3Ids.has(s.id));
+      } else if (filterMode === 'top5') {
+        const top5Ids = new Set(sortedStudentsByRank.slice(0, 5).map(s => s.id));
+        list = list.filter(s => top5Ids.has(s.id));
+      } else if (filterMode === 'top10') {
+        const top10Ids = new Set(sortedStudentsByRank.slice(0, 10).map(s => s.id));
+        list = list.filter(s => top10Ids.has(s.id));
+      }
+    }
+
+    // Pencarian realtime jika guru mengetikkan kata kunci
+    if (studentSearchQuery.trim()) {
+      const q = studentSearchQuery.toLowerCase();
+      list = list.filter(
+        s =>
+          s.nama.toLowerCase().includes(q) ||
+          (s.nisn && s.nisn.includes(q)) ||
+          (s.nis && s.nis.includes(q)) ||
+          String(s.nomorAbsen).includes(q)
+      );
+    }
+
+    return list;
+  }, [students, studentSortOrder, studentSearchQuery, filterMode, rankingsMap, sortedStudentsByRank]);
+
   // Filtered students for dropdown
   const displayedStudents = useMemo(() => {
     if (filterMode === 'top3') return sortedStudentsByRank.slice(0, 3);
@@ -501,7 +615,7 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
 
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
-      const safeStudentName = (selectedStudent?.nama || 'Siswa').replace(/[^a-zA-Z0-9_\-]/g, '_');
+      const safeStudentName = (currentNamaSiswa || selectedStudent?.nama || 'Siswa').replace(/[^a-zA-Z0-9_\-]/g, '_');
       const safeRank = activeStudentRank === 1 ? 'Juara1' : activeStudentRank === 2 ? 'Juara2' : activeStudentRank === 3 ? 'Juara3' : `Peringkat${activeStudentRank}`;
       const safeClass = (schoolInfo.className || 'Kelas').replace(/[^a-zA-Z0-9_\-]/g, '_');
       const fileName = `Piagam_${safeRank}_${safeStudentName}_${safeClass}.pdf`;
@@ -815,47 +929,146 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
           </div>
         </div>
 
-        {/* Student Selector Dropdown with Prev/Next buttons */}
-        <div className="flex items-center gap-2 pt-1">
-          <button
-            type="button"
-            onClick={handlePrevStudent}
-            disabled={currentRankIndex <= 0}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-            title="Siswa Peringkat Sebelumnya"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+        {/* ========================================================================= */}
+        {/* FITUR TARIK DATA SISWA OTOMATIS DARI MODUL 'DATA SISWA'                   */}
+        {/* ========================================================================= */}
+        <div className="pt-2 pb-1 space-y-2.5">
+          {/* Header Bar Kontrol Tarik Data Siswa */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500 text-white shadow-xs">
+                <Users className="h-4 w-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                    Tarik Data Siswa (Modul 'Data Siswa'):
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                    {students.length} Siswa Terdaftar
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Cukup pilih nama siswa dari dropdown untuk mengisi field nama, NIS/NISN, predikat, dan template piagam secara otomatis.
+                </p>
+              </div>
+            </div>
 
-          <select
-            value={selectedStudentId}
-            onChange={e => {
-              setSelectedStudentId(e.target.value);
-              if (onSelectStudentId) onSelectStudentId(e.target.value);
-            }}
-            className="flex-1 rounded-xl border-2 border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs font-black text-slate-900 dark:text-white shadow-xs focus:border-amber-500 focus:ring-2 focus:ring-amber-500 outline-none"
-          >
-            {displayedStudents.map((s) => {
-              const r = rankingsMap.get(s.id) ?? 1;
-              const sc = studentScoresMap.get(s.id) ?? { avg: 0, total: 0 };
-              const gInfo = formatGelarJuara(r, schoolInfo.className || '');
-              return (
-                <option key={s.id} value={s.id}>
-                  {gInfo.badge} • {s.nama} (Peringkat #{r} • Rata-rata: {sc.avg} • Total: {sc.total})
-                </option>
-              );
-            })}
-          </select>
+            {/* Kontrol Pengurutan & Pencarian Cepat */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Selector Pengurutan */}
+              <div className="flex items-center gap-1 text-[11px]">
+                <span className="text-slate-500 font-semibold hidden md:inline">Urutan:</span>
+                <select
+                  value={studentSortOrder}
+                  onChange={e => setStudentSortOrder(e.target.value as any)}
+                  className="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] font-bold text-slate-800 dark:text-slate-200 outline-none cursor-pointer shadow-2xs"
+                >
+                  <option value="rank">🏆 Sesuai Peringkat Leger</option>
+                  <option value="absen">📋 Sesuai No. Absen Siswa</option>
+                  <option value="nama">🔤 Sesuai Abjad Nama (A-Z)</option>
+                </select>
+              </div>
 
-          <button
-            type="button"
-            onClick={handleNextStudent}
-            disabled={currentRankIndex >= sortedStudentsByRank.length - 1}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-            title="Siswa Peringkat Selanjutnya"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+              {/* Pencarian Realtime Siswa */}
+              <div className="relative">
+                <Search className="h-3.5 w-3.5 absolute left-2.5 top-2.5 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={studentSearchQuery}
+                  onChange={e => setStudentSearchQuery(e.target.value)}
+                  placeholder="Cari siswa / NISN..."
+                  className="pl-8 pr-7 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] text-slate-800 dark:text-white placeholder:text-slate-400 outline-none w-36 sm:w-44 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-2xs"
+                />
+                {studentSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setStudentSearchQuery('')}
+                    className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Baris Dropdown Utama Pemilih Siswa */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handlePrevStudent}
+              disabled={currentRankIndex <= 0}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-2xs"
+              title="Pilih Siswa Sebelumnya"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+
+            <div className="flex-1 relative">
+              <select
+                value={selectedStudentId}
+                onChange={e => handleSelectStudentFromDataSiswa(e.target.value)}
+                className="w-full rounded-xl border-2 border-amber-400 dark:border-amber-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-xs font-black text-slate-900 dark:text-white shadow-xs focus:border-amber-500 focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer"
+              >
+                {availableStudentsFromModule.map((s, idx) => {
+                  const r = rankingsMap.get(s.id) ?? idx + 1;
+                  const sc = studentScoresMap.get(s.id) ?? { avg: 0, total: 0 };
+                  const gInfo = formatGelarJuara(r, schoolInfo.className || '');
+                  const absenLabel = s.nomorAbsen ? `[Absen #${s.nomorAbsen}] ` : `[#${idx + 1}] `;
+                  return (
+                    <option key={s.id} value={s.id}>
+                      {absenLabel}{s.nama} • NISN: {s.nisn || '-'} • {gInfo.badge} (Peringkat #{r} • Rata-rata: {sc.avg})
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleNextStudent}
+              disabled={currentRankIndex >= sortedStudentsByRank.length - 1}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-2xs"
+              title="Pilih Siswa Selanjutnya"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Banner Status Siswa Aktif yang Ditarik dari Modul Data Siswa */}
+          {selectedStudent && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 p-2.5 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 dark:from-slate-800 dark:via-emerald-950/20 dark:to-slate-800 border border-emerald-300 dark:border-emerald-700/60 text-xs shadow-2xs">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white font-black text-xs shadow-2xs">
+                  <UserCheck className="h-3.5 w-3.5" />
+                </span>
+                <div>
+                  <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400">Data Siswa Aktif: </span>
+                  <strong className="text-emerald-950 dark:text-emerald-200 text-xs font-black">
+                    {currentNamaSiswa}
+                  </strong>
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400 ml-1.5">
+                    • NIS: <strong className="font-mono">{currentNis || '-'}</strong>
+                    • NISN: <strong className="font-mono">{currentNisn || '-'}</strong>
+                    • Kelas: <strong>{schoolInfo.className}</strong>
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => handleSyncStudentFromDataSiswa()}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                  title="Sinkronkan kembali data nama dan NISN dari Modul Data Siswa"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  <span>Tarik Ulang Data Siswa</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ========================================================================= */}
@@ -1121,11 +1334,123 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                 <Layers className="h-3.5 w-3.5 text-amber-600" />
-                Kustomisasi Format Piagam: {selectedStudent?.nama}
+                Kustomisasi Format Piagam: {currentNamaSiswa}
               </h3>
               <span className="text-[11px] text-slate-500">
-                Peringkat {activeStudentRank} di Leger Nilai
+                Peringkat #{activeStudentRank} di Leger Nilai • Kelas {schoolInfo.className}
               </span>
+            </div>
+
+            {/* Field Data Siswa dari Modul Data Siswa */}
+            <div className="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/70 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-200 dark:border-amber-800/50 pb-2">
+                <div className="flex items-center gap-2">
+                  <UserCheck className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                    Field Data Siswa (Terkoneksi Modul Data Siswa):
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {currentCustom.namaSiswa && currentCustom.namaSiswa !== selectedStudent?.nama ? (
+                    <span className="px-2 py-0.5 rounded-md text-[10.5px] font-bold bg-amber-200 text-amber-900 dark:bg-amber-900/70 dark:text-amber-200">
+                      Nama Dimodifikasi (Kustom)
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-md text-[10.5px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 flex items-center gap-1">
+                      <Check className="h-3 w-3" />
+                      Tersinkron Modul Siswa
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleSyncStudentFromDataSiswa()}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                    title="Tarik ulang nama lengkap, NIS, dan NISN dari Modul Data Siswa"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    <span>Tarik Ulang Data Siswa</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Selector Cepat Siswa dari Modul di Dalam Form */}
+              <div className="flex items-center gap-2">
+                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 shrink-0">
+                  Ganti / Tarik Siswa Lain:
+                </label>
+                <select
+                  value={selectedStudentId}
+                  onChange={e => handleSelectStudentFromDataSiswa(e.target.value)}
+                  className="flex-1 rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white outline-none cursor-pointer"
+                >
+                  {students.map((s, idx) => {
+                    const r = rankingsMap.get(s.id) ?? idx + 1;
+                    return (
+                      <option key={s.id} value={s.id}>
+                        {s.nomorAbsen ? `[Absen #${s.nomorAbsen}] ` : `[#${idx + 1}] `}{s.nama} • NISN: {s.nisn || '-'} • Peringkat #{r}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Field Nama Lengkap Siswa */}
+                <div className="sm:col-span-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                      Nama Lengkap Peserta Didik (Field Piagam):
+                    </label>
+                    {currentCustom.namaSiswa && currentCustom.namaSiswa !== selectedStudent?.nama && (
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateCurrentStudentCustom({ namaSiswa: selectedStudent?.nama })}
+                        className="text-[10px] text-amber-700 dark:text-amber-400 hover:underline font-bold"
+                      >
+                        Kembalikan ke: {selectedStudent?.nama}
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={currentNamaSiswa}
+                    onChange={e => handleUpdateCurrentStudentCustom({ namaSiswa: e.target.value })}
+                    placeholder="Nama lengkap siswa penerima piagam..."
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs font-black text-slate-900 dark:text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Field nama ini otomatis terisi saat memilih siswa dari dropdown dan dapat disesuaikan jika membutuhkan ejaan/gelar khusus.
+                  </p>
+                </div>
+
+                {/* Field NIS & NISN */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      NIS:
+                    </label>
+                    <input
+                      type="text"
+                      value={currentNis}
+                      onChange={e => handleUpdateCurrentStudentCustom({ nis: e.target.value })}
+                      placeholder="NIS Siswa..."
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs font-mono font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      NISN:
+                    </label>
+                    <input
+                      type="text"
+                      value={currentNisn}
+                      onChange={e => handleUpdateCurrentStudentCustom({ nisn: e.target.value })}
+                      placeholder="NISN Siswa..."
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs font-mono font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1292,6 +1617,9 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
                 paperSize={paperSize}
                 showWatermark={showWatermark}
                 nomorPiagam={currentNomor}
+                namaSiswa={currentNamaSiswa}
+                nis={currentNis}
+                nisn={currentNisn}
                 kategoriPrestasi={currentKategori}
                 catatanApresiasi={currentCatatan}
                 tanggalPiagam={currentTanggal}
@@ -1383,6 +1711,9 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
             const kat = cust.kategoriPrestasi || gInfo.title;
             const periodLabel = isMid ? 'Asesmen Sumatif Tengah Semester (ASTS)' : `Semester ${schoolInfo.semester}`;
             const cat = cust.catatanApresiasi || `Atas dedikasi, kedisiplinan, serta prestasi akademik luar biasa sebagai ${gInfo.subtitle} dengan perolehan Rata-Rata Nilai ${sc.avg} (Total Skor: ${sc.total}) pada ${periodLabel} Tahun Pelajaran ${schoolInfo.academicYear}.`;
+            const stNama = cust.namaSiswa || st.nama;
+            const stNis = cust.nis !== undefined ? cust.nis : st.nis;
+            const stNisn = cust.nisn !== undefined ? cust.nisn : st.nisn;
 
             return (
               <PiagamCertificateCard
@@ -1397,6 +1728,9 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
                 paperSize={paperSize}
                 showWatermark={showWatermark}
                 nomorPiagam={nom}
+                namaSiswa={stNama}
+                nis={stNis}
+                nisn={stNisn}
                 kategoriPrestasi={kat}
                 catatanApresiasi={cat}
                 tanggalPiagam={tgl}
@@ -1424,6 +1758,9 @@ interface PiagamCertificateCardProps {
   paperSize: PiagamPaperSize;
   showWatermark: boolean;
   nomorPiagam: string;
+  namaSiswa?: string;
+  nis?: string;
+  nisn?: string;
   kategoriPrestasi: string;
   catatanApresiasi: string;
   tanggalPiagam: string;
@@ -1440,6 +1777,9 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
   paperSize,
   showWatermark,
   nomorPiagam,
+  namaSiswa,
+  nis,
+  nisn,
   kategoriPrestasi,
   catatanApresiasi,
   tanggalPiagam
@@ -1453,6 +1793,11 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
   // Wali Kelas data
   const waliKelasName = schoolInfo.homeroomTeacherName || schoolInfo.teacherName || currentUser.name || 'Wali Kelas';
   const waliKelasNip = schoolInfo.homeroomTeacherNip || schoolInfo.teacherNip || currentUser.nipOrNisn || '-';
+
+  // Display student info (pulled automatically from Data Siswa or customized)
+  const displayNama = namaSiswa || student.nama;
+  const displayNis = nis !== undefined && nis !== '' ? nis : (student.nis || '-');
+  const displayNisn = nisn !== undefined && nisn !== '' ? nisn : (student.nisn || '-');
 
   return (
     <div
@@ -1525,12 +1870,12 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
             className="text-xl sm:text-2xl lg:text-[28px] font-black tracking-wider uppercase font-serif leading-tight"
             style={{ color: themeConfig.titleColor }}
           >
-            {student.nama}
+            {displayNama}
           </h2>
           <div className="flex items-center justify-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold text-slate-700 mt-0.5">
-            <span>NIS: <strong className="font-mono">{student.nis || '-'}</strong></span>
+            <span>NIS: <strong className="font-mono">{displayNis}</strong></span>
             <span>•</span>
-            <span>NISN: <strong className="font-mono">{student.nisn || '-'}</strong></span>
+            <span>NISN: <strong className="font-mono">{displayNisn}</strong></span>
             <span>•</span>
             <span>Kelas: <strong>{schoolInfo.className} ({schoolInfo.phase})</strong></span>
           </div>
@@ -1893,10 +2238,10 @@ const ModalCetakMassalPiagam: React.FC<ModalCetakMassalPiagamProps> = ({
                     />
                     <div>
                       <span className="font-bold text-slate-900 dark:text-white">
-                        {st.nama}
+                        {cust.namaSiswa || st.nama}
                       </span>
                       <span className="text-[11px] text-slate-500 dark:text-slate-400 ml-2">
-                        NISN: {st.nisn}
+                        NISN: {cust.nisn || st.nisn || '-'}
                       </span>
                       <div className="text-[10.5px] font-mono font-bold text-amber-700 dark:text-amber-400 mt-0.5">
                         No. Piagam: {nom}
