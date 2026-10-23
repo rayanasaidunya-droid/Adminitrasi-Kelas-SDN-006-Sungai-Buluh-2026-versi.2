@@ -104,21 +104,21 @@ export const HeaderKopSekolah: React.FC<HeaderKopSekolahProps> = ({
         </div>
 
         {/* Text Header Kop Sekolah: aman dengan jarak padding dan max-w agar tidak pernah menyentuh logo */}
-        <div className={`flex-1 text-center min-w-0 ${isPiagam ? 'px-4 sm:px-8 max-w-2xl sm:max-w-3xl lg:max-w-4xl mx-auto' : 'px-1 sm:px-2'}`}>
+        <div className={`flex-1 text-center min-w-0 ${isPiagam ? 'px-4 sm:px-8 max-w-xl sm:max-w-2xl lg:max-w-[680px] mx-auto' : 'px-1 sm:px-2'}`}>
           {headerLine1 && (
-            <h3 className={`${isPiagam ? 'text-xs sm:text-sm md:text-base font-extrabold tracking-wider' : 'text-xs sm:text-base md:text-lg font-bold tracking-wider'} uppercase text-black print:text-black leading-snug`}>
+            <h3 className={`${isPiagam ? 'text-sm sm:text-base md:text-lg lg:text-xl font-black tracking-wide' : 'text-xs sm:text-base md:text-lg font-bold tracking-wider'} uppercase text-black print:text-black leading-tight`}>
               {headerLine1}
             </h3>
           )}
           {headerLine2 && (
-            <h3 className={`${isPiagam ? 'text-xs sm:text-sm md:text-base font-extrabold tracking-wider' : 'text-xs sm:text-base md:text-lg font-bold tracking-wider'} uppercase text-black print:text-black leading-snug`}>
+            <h3 className={`${isPiagam ? 'text-sm sm:text-base md:text-lg lg:text-xl font-black tracking-wide mt-0.5' : 'text-xs sm:text-base md:text-lg font-bold tracking-wider'} uppercase text-black print:text-black leading-tight`}>
               {headerLine2}
             </h3>
           )}
           <h1
             className={`${
               isPiagam
-                ? 'text-lg sm:text-2xl md:text-[28px] font-black tracking-tight leading-tight my-1'
+                ? 'text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-black tracking-tight leading-tight my-1'
                 : 'text-base sm:text-xl md:text-2xl font-black tracking-tight leading-tight my-0.5'
             } uppercase ${
               !schoolNameColor ? 'text-blue-900 print:text-black' : 'print:text-black'
@@ -127,14 +127,14 @@ export const HeaderKopSekolah: React.FC<HeaderKopSekolahProps> = ({
           >
             {schoolInfo.schoolName}
           </h1>
-          <p className={`${isPiagam ? 'text-[11px] sm:text-xs md:text-sm text-slate-800' : 'text-[9.5px] sm:text-xs text-slate-700'} print:text-black leading-snug`}>
+          <p className={`${isPiagam ? 'text-xs sm:text-[13px] md:text-sm text-slate-800' : 'text-[9.5px] sm:text-xs text-slate-700'} print:text-black leading-snug`}>
             {schoolInfo.address}
             {schoolInfo.village ? `, Desa/Kel. ${schoolInfo.village}` : ''}
             {schoolInfo.subdistrict ? `, Kec. ${schoolInfo.subdistrict}` : ''}
             {schoolInfo.city ? `, ${schoolInfo.city}` : ''}
             {schoolInfo.postalCode ? `, Kode Pos ${schoolInfo.postalCode}` : ''}
           </p>
-          <p className={`${isPiagam ? 'text-[10px] sm:text-[11.5px] md:text-xs text-slate-800 mt-1' : 'text-[9px] sm:text-xs text-slate-700 mt-0.5'} print:text-black leading-snug`}>
+          <p className={`${isPiagam ? 'text-[10.5px] sm:text-xs md:text-[13px] text-slate-800 mt-1' : 'text-[9px] sm:text-xs text-slate-700 mt-0.5'} print:text-black leading-snug`}>
             NPSN: <span className="font-semibold text-black print:text-black">{schoolInfo.npsn}</span> | Telp: {schoolInfo.phoneNumber} | Email: {schoolInfo.email}
           </p>
         </div>
