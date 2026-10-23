@@ -261,7 +261,6 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
   const [filterMode, setFilterMode] = useState<'all' | 'top3' | 'top5' | 'top10'>('top3');
   const [frameCategoryFilter, setFrameCategoryFilter] = useState<string>('all');
   const [showWatermark, setShowWatermark] = useState<boolean>(true);
-  const [showInnerBorderLines, setShowInnerBorderLines] = useState<boolean>(false);
 
   // Batch Print & Custom Data State
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
@@ -482,8 +481,7 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        imageTimeout: 15000,
-        ignoreElements: (element) => element.classList.contains('piagam-inner-rect-line')
+        imageTimeout: 15000
       });
 
       const imgData = canvas.toDataURL('image/jpeg', 0.98);
@@ -532,7 +530,7 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
         @media print {
           @page {
             size: ${isF4 ? '330mm 215mm' : '297mm 210mm'} landscape !important;
-            margin: 4mm !important;
+            margin: 5mm !important;
           }
           body {
             background-color: white !important;
@@ -543,18 +541,10 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
           .print-hidden-piagam {
             display: none !important;
           }
-          /* Hilangkan garis persegi di dalam bingkai piagam saat dicetak */
-          .piagam-inner-rect-line,
-          .piagam-inner-border-line {
-            display: none !important;
-            visibility: hidden !important;
-            border: none !important;
-            outline: none !important;
-          }
           .piagam-single-card {
             width: 100% !important;
-            height: ${isF4 ? '198mm' : '194mm'} !important;
-            max-height: ${isF4 ? '200mm' : '196mm'} !important;
+            height: ${isF4 ? '205mm' : '200mm'} !important;
+            max-height: ${isF4 ? '205mm' : '200mm'} !important;
             box-sizing: border-box !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
@@ -1006,20 +996,6 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
                 />
                 <span>Watermark Lambang</span>
               </label>
-
-              {/* Toggle Garis Persegi Bingkai Dalam */}
-              <label
-                className="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-700 dark:text-slate-300"
-                title="Tampilkan garis persegi di dalam bingkai (default: dinonaktifkan agar bersih dan elegan tanpa garis kotak)"
-              >
-                <input
-                  type="checkbox"
-                  checked={showInnerBorderLines}
-                  onChange={e => setShowInnerBorderLines(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500"
-                />
-                <span>Garis Persegi Dalam</span>
-              </label>
             </div>
           </div>
         </div>
@@ -1234,7 +1210,6 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
                 sealType={sealType}
                 paperSize={paperSize}
                 showWatermark={showWatermark}
-                showInnerBorderLines={showInnerBorderLines}
                 nomorPiagam={currentNomor}
                 kategoriPrestasi={currentKategori}
                 catatanApresiasi={currentCatatan}
@@ -1321,7 +1296,6 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
                 sealType={sealType}
                 paperSize={paperSize}
                 showWatermark={showWatermark}
-                showInnerBorderLines={showInnerBorderLines}
                 nomorPiagam={nom}
                 kategoriPrestasi={kat}
                 catatanApresiasi={cat}
@@ -1349,7 +1323,6 @@ interface PiagamCertificateCardProps {
   sealType: PiagamSealType;
   paperSize: PiagamPaperSize;
   showWatermark: boolean;
-  showInnerBorderLines?: boolean;
   nomorPiagam: string;
   kategoriPrestasi: string;
   catatanApresiasi: string;
@@ -1366,7 +1339,6 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
   sealType,
   paperSize,
   showWatermark,
-  showInnerBorderLines = false,
   nomorPiagam,
   kategoriPrestasi,
   catatanApresiasi,
@@ -1384,14 +1356,14 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
 
   return (
     <div
-      className={`piagam-single-card bg-white relative text-slate-900 ${widthStyle} ${heightStyle} p-6 sm:p-9 print:p-6 print:py-4 shadow-xl rounded-sm print:rounded-none overflow-hidden flex flex-col justify-between border-[6px] ${themeConfig.borderOuter}`}
+      className={`piagam-single-card bg-white relative text-slate-900 ${widthStyle} ${heightStyle} p-6 sm:p-9 shadow-xl rounded-sm print:rounded-none overflow-hidden flex flex-col justify-between border-[6px] ${themeConfig.borderOuter}`}
       style={{
         boxSizing: 'border-box',
         backgroundColor: '#ffffff'
       }}
     >
-      {/* Dekorasi Bingkai Vektor Eksklusif Sesuai Model Terpilih (Garis Persegi Dalam Diatur Sesuai Pilihan & Dihilangkan Saat Cetak) */}
-      <PiagamFrameDecorator style={borderStyle} colorTheme={colorTheme} showInnerBorder={showInnerBorderLines} />
+      {/* Dekorasi Bingkai Vektor Eksklusif Sesuai Model Terpilih */}
+      <PiagamFrameDecorator style={borderStyle} colorTheme={colorTheme} />
 
       {/* Watermark Logo Tut Wuri Handayani di Tengah Piagam (Transparan) */}
       {showWatermark && (
@@ -1413,15 +1385,15 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
         logoSize={64}
         borderColor={themeConfig.gold}
         schoolNameColor={themeConfig.primary}
-        className="relative z-10 w-full mb-2 sm:mb-2.5 print:mb-1 pb-2 print:pb-1"
+        className="relative z-10 w-full mb-2 sm:mb-2.5 print:mb-2 pb-2 print:pb-1"
       />
 
       {/* ========================================================================= */}
       {/* 2. JUDUL PIAGAM PENGHARGAAN & NOMOR RESMI                                 */}
       {/* ========================================================================= */}
-      <div className="relative z-10 text-center my-2 sm:my-3 print:my-1">
+      <div className="relative z-10 text-center my-2 sm:my-3">
         <h1
-          className="text-2xl sm:text-3xl font-serif font-black tracking-widest uppercase print:text-2xl"
+          className="text-2xl sm:text-3xl font-serif font-black tracking-widest uppercase"
           style={{ color: themeConfig.titleColor }}
         >
           PIAGAM PENGHARGAAN
@@ -1434,7 +1406,7 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
           <div className="h-[2px] w-20 sm:w-32" style={{ backgroundColor: themeConfig.gold }} />
         </div>
 
-        <p className="text-[11px] font-mono font-bold text-slate-700 tracking-wide mt-1 print:mt-0.5">
+        <p className="text-[11px] font-mono font-bold text-slate-700 tracking-wide mt-1">
           NOMOR: {nomorPiagam}
         </p>
       </div>
@@ -1442,20 +1414,20 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
       {/* ========================================================================= */}
       {/* 3. PERNYATAAN PENERIMA & PRESTASI SISWA (TENGAH)                          */}
       {/* ========================================================================= */}
-      <div className="relative z-10 text-center space-y-2 print:space-y-1">
-        <p className="text-xs sm:text-sm font-serif italic text-slate-700 print:text-[11px]">
+      <div className="relative z-10 text-center space-y-2">
+        <p className="text-xs sm:text-sm font-serif italic text-slate-700">
           Diberikan dengan penuh rasa bangga dan apresiasi setinggi-tingginya kepada:
         </p>
 
         {/* Nama Siswa Besar & Elegan */}
-        <div className="my-1 print:my-0.5">
+        <div className="my-1">
           <h2
-            className="text-xl sm:text-2xl lg:text-3xl font-black tracking-wider uppercase font-serif print:text-2xl print:my-0.5"
+            className="text-xl sm:text-2xl lg:text-3xl font-black tracking-wider uppercase font-serif"
             style={{ color: themeConfig.titleColor }}
           >
             {student.nama}
           </h2>
-          <div className="flex items-center justify-center gap-4 text-xs font-bold text-slate-700 mt-1 print:text-[11px] print:mt-0.5">
+          <div className="flex items-center justify-center gap-4 text-xs font-bold text-slate-700 mt-1">
             <span>NIS: <strong className="font-mono">{student.nis || '-'}</strong></span>
             <span>•</span>
             <span>NISN: <strong className="font-mono">{student.nisn || '-'}</strong></span>
@@ -1464,10 +1436,10 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
           </div>
         </div>
 
-        {/* Box Gelar Prestasi / Juara Otomatis Sesuai Urutan Rangking Leger (Garis Persegi Dihilangkan Saat Cetak) */}
-        <div className="max-w-2xl mx-auto my-1.5 sm:my-2 print:my-0.5 print:max-w-none">
+        {/* Box Gelar Prestasi / Juara Otomatis Sesuai Urutan Rangking Leger */}
+        <div className="max-w-2xl mx-auto my-1.5 sm:my-2">
           <div
-            className="py-2.5 px-6 rounded-2xl border-2 shadow-xs flex items-center justify-between gap-3 relative overflow-hidden print:border-none print:shadow-none print:bg-transparent print:py-0.5 print:px-0"
+            className="py-2.5 px-6 rounded-2xl border-2 shadow-xs flex items-center justify-between gap-3 relative overflow-hidden"
             style={{
               borderColor: themeConfig.gold,
               backgroundColor: `${themeConfig.primary}08`
@@ -1526,10 +1498,10 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
         </div>
 
         {/* Catatan Apresiasi & Motivasi Belajar */}
-        <p className="text-xs text-slate-700 max-w-2xl mx-auto leading-relaxed italic px-4 font-serif print:text-[10.5px] print:leading-snug print:max-w-3xl print:px-2">
+        <p className="text-xs text-slate-700 max-w-2xl mx-auto leading-relaxed italic px-4 font-serif">
           "{catatanApresiasi}"
         </p>
-        <p className="text-[10px] text-slate-500 max-w-2xl mx-auto print:text-[9px] print:max-w-3xl">
+        <p className="text-[10px] text-slate-500 max-w-2xl mx-auto">
           Semoga keberhasilan ini senantiasa menjadi inspirasi, pemacu semangat belajar tanpa henti, serta menjadi bekal luhur dalam menggapai cita-cita mulia di masa depan.
         </p>
       </div>
@@ -1537,22 +1509,22 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
       {/* ========================================================================= */}
       {/* 4. PENGESAHAN & TANDA TANGAN (BAWAH)                                       */}
       {/* ========================================================================= */}
-      <div className="relative z-10 w-full pt-3 mt-2 print:pt-2 print:mt-1 border-t" style={{ borderColor: `${themeConfig.gold}40` }}>
+      <div className="relative z-10 w-full pt-3 mt-2 border-t" style={{ borderColor: `${themeConfig.gold}40` }}>
         <div className="flex items-end justify-between px-6 text-center text-xs">
           {/* Tanda Tangan Wali Kelas (Kiri) */}
           <div className="w-56">
-            <p className="text-slate-700 font-medium print:text-[11px]">Mengetahui,</p>
-            <p className="font-bold text-slate-900 print:text-[11px]">Wali Kelas {schoolInfo.className}</p>
+            <p className="text-slate-700 font-medium">Mengetahui,</p>
+            <p className="font-bold text-slate-900">Wali Kelas {schoolInfo.className}</p>
 
             {/* Ruang TTD */}
-            <div className="h-16 print:h-12 flex items-center justify-center">
+            <div className="h-16 flex items-center justify-center">
               <span className="text-[10px] text-slate-300 italic select-none">Tanda Tangan</span>
             </div>
 
-            <p className="font-black text-slate-900 uppercase underline tracking-wide print:text-[11px]">
+            <p className="font-black text-slate-900 uppercase underline tracking-wide">
               {waliKelasName}
             </p>
-            <p className="text-[11px] font-bold text-slate-700 mt-0.5 print:text-[10px]">
+            <p className="text-[11px] font-bold text-slate-700 mt-0.5">
               NIP. <span className="font-mono">{waliKelasNip}</span>
             </p>
           </div>
@@ -1566,18 +1538,18 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
 
           {/* Tanda Tangan Kepala Sekolah (Kanan) */}
           <div className="w-56">
-            <p className="text-slate-800 font-semibold print:text-[11px]">{tanggalPiagam}</p>
-            <p className="font-bold text-slate-900 print:text-[11px]">Kepala Sekolah,</p>
+            <p className="text-slate-800 font-semibold">{tanggalPiagam}</p>
+            <p className="font-bold text-slate-900">Kepala Sekolah,</p>
 
             {/* Ruang TTD & Stempel */}
-            <div className="h-16 print:h-12 flex items-center justify-center">
+            <div className="h-16 flex items-center justify-center">
               <span className="text-[10px] text-slate-300 italic select-none">Tanda Tangan & Cap</span>
             </div>
 
-            <p className="font-black text-slate-900 uppercase underline tracking-wide print:text-[11px]">
+            <p className="font-black text-slate-900 uppercase underline tracking-wide">
               {schoolInfo.headmasterName || 'Kepala Sekolah'}
             </p>
-            <p className="text-[11px] font-bold text-slate-700 mt-0.5 print:text-[10px]">
+            <p className="text-[11px] font-bold text-slate-700 mt-0.5">
               NIP. <span className="font-mono">{schoolInfo.headmasterNip || '-'}</span>
             </p>
           </div>
