@@ -11,6 +11,7 @@ interface HeaderKopSekolahProps {
   logoSize?: number;
   schoolNameColor?: string;
   borderColor?: string;
+  variant?: 'default' | 'piagam';
 }
 
 export const HeaderKopSekolah: React.FC<HeaderKopSekolahProps> = ({
@@ -21,9 +22,11 @@ export const HeaderKopSekolah: React.FC<HeaderKopSekolahProps> = ({
   equalizeLogos = true,
   logoSize,
   schoolNameColor,
-  borderColor
+  borderColor,
+  variant = 'default'
 }) => {
   const { schoolInfo } = useApp();
+  const isPiagam = variant === 'piagam';
 
   const showLeft = schoolInfo.showLogoLeft !== false;
   const showRight = schoolInfo.showLogoRight !== false;
@@ -39,8 +42,12 @@ export const HeaderKopSekolah: React.FC<HeaderKopSekolahProps> = ({
       ? Math.max(rawLeftWidth, rawRightWidth)
       : (rawLeftWidth || rawRightWidth || 72);
 
-  // Batasi dalam rentang proporsional kop A4/F4 resmi
-  const finalSize = Math.max(56, Math.min(uniformSize, 88));
+  // Batasi dalam rentang proporsional kop:
+  // Untuk piagam (landscape format megah): rentang ukuran logo 64px - 96px
+  // Untuk kop standar (portrait): rentang ukuran logo 56px - 88px
+  const minLogoLimit = isPiagam ? 64 : 56;
+  const maxLogoLimit = isPiagam ? 96 : 88;
+  const finalSize = Math.max(minLogoLimit, Math.min(uniformSize, maxLogoLimit));
 
   const leftWidth = equalizeLogos ? finalSize : rawLeftWidth;
   const rightWidth = equalizeLogos ? finalSize : rawRightWidth;
@@ -50,6 +57,9 @@ export const HeaderKopSekolah: React.FC<HeaderKopSekolahProps> = ({
 
   const getBorderClass = () => {
     if (hideBorder) return '';
+    if (isPiagam) {
+      return `border-b-4 border-double ${!borderColor ? 'border-slate-900 dark:border-slate-300' : ''} pb-2 sm:pb-3 print:pb-2`;
+    }
     const style = schoolInfo.kopBorderStyle || 'double';
     switch (style) {
       case 'double':
@@ -70,7 +80,7 @@ export const HeaderKopSekolah: React.FC<HeaderKopSekolahProps> = ({
       className={`text-center text-black print:text-black ${getBorderClass()} ${className !== undefined ? className : 'mb-6 print:mb-2 pb-2 print:pb-1'}`}
       style={borderColor && !hideBorder ? { borderColor } : undefined}
     >
-      <div className="flex items-center justify-between gap-3 sm:gap-6">
+      <div className={`flex items-center justify-between ${isPiagam ? 'gap-6 sm:gap-10 print:gap-8 px-2 sm:px-4' : 'gap-3 sm:gap-6'}`}>
         {/* Logo Kiri */}
         <div 
           className="flex shrink-0 items-center justify-center print:flex"
@@ -93,34 +103,38 @@ export const HeaderKopSekolah: React.FC<HeaderKopSekolahProps> = ({
           )}
         </div>
 
-        {/* Text Header Kop Sekolah */}
-        <div className="flex-1 text-center px-1 sm:px-2 min-w-0">
+        {/* Text Header Kop Sekolah: aman dengan jarak padding dan max-w agar tidak pernah menyentuh logo */}
+        <div className={`flex-1 text-center min-w-0 ${isPiagam ? 'px-4 sm:px-8 max-w-2xl sm:max-w-3xl lg:max-w-4xl mx-auto' : 'px-1 sm:px-2'}`}>
           {headerLine1 && (
-            <h3 className="text-xs sm:text-base md:text-lg font-bold uppercase tracking-wider text-black print:text-black leading-snug">
+            <h3 className={`${isPiagam ? 'text-xs sm:text-sm md:text-base font-extrabold tracking-wider' : 'text-xs sm:text-base md:text-lg font-bold tracking-wider'} uppercase text-black print:text-black leading-snug`}>
               {headerLine1}
             </h3>
           )}
           {headerLine2 && (
-            <h3 className="text-xs sm:text-base md:text-lg font-bold uppercase tracking-wider text-black print:text-black leading-snug">
+            <h3 className={`${isPiagam ? 'text-xs sm:text-sm md:text-base font-extrabold tracking-wider' : 'text-xs sm:text-base md:text-lg font-bold tracking-wider'} uppercase text-black print:text-black leading-snug`}>
               {headerLine2}
             </h3>
           )}
           <h1
-            className={`text-base sm:text-xl md:text-2xl font-black uppercase tracking-tight leading-tight my-0.5 ${
+            className={`${
+              isPiagam
+                ? 'text-lg sm:text-2xl md:text-[28px] font-black tracking-tight leading-tight my-1'
+                : 'text-base sm:text-xl md:text-2xl font-black tracking-tight leading-tight my-0.5'
+            } uppercase ${
               !schoolNameColor ? 'text-blue-900 print:text-black' : 'print:text-black'
             }`}
             style={schoolNameColor ? { color: schoolNameColor } : undefined}
           >
             {schoolInfo.schoolName}
           </h1>
-          <p className="text-[9.5px] sm:text-xs text-slate-700 print:text-black leading-tight">
+          <p className={`${isPiagam ? 'text-[11px] sm:text-xs md:text-sm text-slate-800' : 'text-[9.5px] sm:text-xs text-slate-700'} print:text-black leading-snug`}>
             {schoolInfo.address}
             {schoolInfo.village ? `, Desa/Kel. ${schoolInfo.village}` : ''}
             {schoolInfo.subdistrict ? `, Kec. ${schoolInfo.subdistrict}` : ''}
             {schoolInfo.city ? `, ${schoolInfo.city}` : ''}
             {schoolInfo.postalCode ? `, Kode Pos ${schoolInfo.postalCode}` : ''}
           </p>
-          <p className="text-[9px] sm:text-xs text-slate-700 print:text-black leading-tight mt-0.5">
+          <p className={`${isPiagam ? 'text-[10px] sm:text-[11.5px] md:text-xs text-slate-800 mt-1' : 'text-[9px] sm:text-xs text-slate-700 mt-0.5'} print:text-black leading-snug`}>
             NPSN: <span className="font-semibold text-black print:text-black">{schoolInfo.npsn}</span> | Telp: {schoolInfo.phoneNumber} | Email: {schoolInfo.email}
           </p>
         </div>

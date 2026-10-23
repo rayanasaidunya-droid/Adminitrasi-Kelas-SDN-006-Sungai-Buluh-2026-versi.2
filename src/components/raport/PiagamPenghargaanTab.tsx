@@ -682,6 +682,7 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
             margin: 0 auto !important;
             box-shadow: none !important;
             overflow: hidden !important;
+            padding: 5mm 8mm !important;
           }
           .piagam-batch-container .piagam-single-card:last-child {
             page-break-after: auto !important;
@@ -1787,8 +1788,8 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
   const { schoolInfo, currentUser } = useApp();
 
   const isF4 = paperSize === 'F4';
-  const widthStyle = isF4 ? 'w-[1120px]' : 'w-[1040px]';
-  const heightStyle = isF4 ? 'min-h-[730px]' : 'min-h-[700px]';
+  const widthStyle = isF4 ? 'w-[1080px] sm:w-[1140px]' : 'w-[1020px] sm:w-[1060px]';
+  const heightStyle = isF4 ? 'min-h-[750px]' : 'min-h-[730px]';
 
   // Wali Kelas data
   const waliKelasName = schoolInfo.homeroomTeacherName || schoolInfo.teacherName || currentUser.name || 'Wali Kelas';
@@ -1801,7 +1802,7 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
 
   return (
     <div
-      className={`piagam-single-card bg-white relative text-slate-900 ${widthStyle} ${heightStyle} px-7 py-5 sm:px-10 sm:py-6 print:px-6 print:py-4 shadow-xl rounded-sm print:rounded-none overflow-hidden flex flex-col justify-between border-[5px] sm:border-[6px] ${themeConfig.borderOuter}`}
+      className={`piagam-single-card bg-white relative text-slate-900 ${widthStyle} ${heightStyle} px-8 py-6 sm:px-12 sm:py-8 print:px-6 print:py-4 shadow-xl rounded-sm print:rounded-none overflow-hidden flex flex-col justify-between border-[6px] sm:border-[7px] ${themeConfig.borderOuter}`}
       style={{
         boxSizing: 'border-box',
         backgroundColor: '#ffffff'
@@ -1816,7 +1817,7 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
           <SchoolLogoRenderer
             preset={schoolInfo.logoLeftPreset || 'tutwuri'}
             customUrl={schoolInfo.logoLeft}
-            width={360}
+            width={380}
             alt="Watermark Tut Wuri Handayani"
           />
         </div>
@@ -1826,32 +1827,33 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
       {/* 1. KOP RESMI PIAGAM PENGHARGAAN (SESUAI LEMBAR RAPOR SISWA)               */}
       {/* ========================================================================= */}
       <HeaderKopSekolah
+        variant="piagam"
         equalizeLogos={true}
-        logoSize={50}
+        logoSize={78}
         borderColor={themeConfig.gold}
         schoolNameColor={themeConfig.primary}
-        className="relative z-10 w-full mb-1 sm:mb-1.5 print:mb-0.5 pb-1 sm:pb-1.5 print:pb-0.5"
+        className="relative z-10 w-full mb-1.5 sm:mb-2 print:mb-1 pb-1.5 sm:pb-2 print:pb-1"
       />
 
       {/* ========================================================================= */}
       {/* 2. JUDUL PIAGAM PENGHARGAAN & NOMOR RESMI                                 */}
       {/* ========================================================================= */}
-      <div className="relative z-10 text-center my-1 sm:my-1.5 print:my-0.5">
+      <div className="relative z-10 text-center my-1.5 sm:my-2 print:my-1">
         <h1
-          className="text-xl sm:text-2xl lg:text-3xl font-serif font-black tracking-widest uppercase"
+          className="text-2xl sm:text-3xl lg:text-[34px] font-serif font-black tracking-[0.2em] uppercase leading-tight drop-shadow-xs"
           style={{ color: themeConfig.titleColor }}
         >
           PIAGAM PENGHARGAAN
         </h1>
 
         {/* Garis Pembatas Ornamen */}
-        <div className="flex items-center justify-center gap-2 mt-0.5">
-          <div className="h-[2px] w-16 sm:w-28" style={{ backgroundColor: themeConfig.gold }} />
-          <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-          <div className="h-[2px] w-16 sm:w-28" style={{ backgroundColor: themeConfig.gold }} />
+        <div className="flex items-center justify-center gap-3 my-1 sm:my-1.5">
+          <div className="h-[2px] w-24 sm:w-36" style={{ backgroundColor: themeConfig.gold }} />
+          <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+          <div className="h-[2px] w-24 sm:w-36" style={{ backgroundColor: themeConfig.gold }} />
         </div>
 
-        <p className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-700 tracking-wide mt-0.5">
+        <p className="text-xs sm:text-sm font-mono font-bold text-slate-800 tracking-wider mt-0.5">
           NOMOR: {nomorPiagam}
         </p>
       </div>
@@ -1859,32 +1861,32 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
       {/* ========================================================================= */}
       {/* 3. PERNYATAAN PENERIMA & PRESTASI SISWA (TENGAH)                          */}
       {/* ========================================================================= */}
-      <div className="relative z-10 text-center space-y-1 sm:space-y-1.5 print:space-y-0.5">
-        <p className="text-xs sm:text-[13px] font-serif italic text-slate-700">
+      <div className="relative z-10 text-center space-y-1.5 sm:space-y-2 print:space-y-1">
+        <p className="text-sm sm:text-base lg:text-[17px] font-serif italic text-slate-700 font-medium">
           Diberikan dengan penuh rasa bangga dan apresiasi setinggi-tingginya kepada:
         </p>
 
         {/* Nama Siswa Besar & Elegan */}
-        <div className="my-0.5 sm:my-1">
+        <div className="my-1 sm:my-1.5">
           <h2
-            className="text-xl sm:text-2xl lg:text-[28px] font-black tracking-wider uppercase font-serif leading-tight"
+            className="text-2xl sm:text-3xl lg:text-[34px] font-black tracking-wide uppercase font-serif leading-tight drop-shadow-xs"
             style={{ color: themeConfig.titleColor }}
           >
             {displayNama}
           </h2>
-          <div className="flex items-center justify-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold text-slate-700 mt-0.5">
-            <span>NIS: <strong className="font-mono">{displayNis}</strong></span>
+          <div className="flex items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm font-bold text-slate-700 mt-1">
+            <span>NIS: <strong className="font-mono font-extrabold text-slate-900">{displayNis}</strong></span>
             <span>•</span>
-            <span>NISN: <strong className="font-mono">{displayNisn}</strong></span>
+            <span>NISN: <strong className="font-mono font-extrabold text-slate-900">{displayNisn}</strong></span>
             <span>•</span>
-            <span>Kelas: <strong>{schoolInfo.className} ({schoolInfo.phase})</strong></span>
+            <span>Kelas: <strong className="font-extrabold text-slate-900">{schoolInfo.className} ({schoolInfo.phase})</strong></span>
           </div>
         </div>
 
         {/* Box Gelar Prestasi: Persegi Panjang Elegan Melebar Sesuai Halaman Landscape & Tidak Melewati Bingkai */}
-        <div className="w-full max-w-3xl lg:max-w-4xl print:max-w-none mx-auto my-1 sm:my-1.5 print:my-0.5">
+        <div className="w-full max-w-3xl lg:max-w-4xl print:max-w-none mx-auto my-2 sm:my-2.5 print:my-1">
           <div
-            className="py-2 sm:py-2.5 px-5 sm:px-8 rounded-xl border-2 shadow-xs flex items-center justify-between gap-4 relative overflow-hidden"
+            className="py-3 sm:py-3.5 px-6 sm:px-10 rounded-2xl border-2 shadow-xs flex items-center justify-between gap-5 relative overflow-hidden"
             style={{
               borderColor: themeConfig.gold,
               backgroundColor: `${themeConfig.primary}08`
@@ -1893,36 +1895,36 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
             {/* Left Rank Icon / Crown */}
             <div className="shrink-0 flex items-center justify-center">
               {rank === 1 ? (
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center shadow-xs ring-2 ring-amber-300">
-                  <Crown className="h-4 sm:h-4.5 w-4 sm:w-4.5 text-white" />
+                <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center shadow-xs ring-2 ring-amber-300">
+                  <Crown className="h-6 sm:h-6.5 w-6 sm:w-6.5 text-white" />
                 </div>
               ) : rank === 2 ? (
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-tr from-slate-400 to-slate-300 text-white flex items-center justify-center shadow-xs ring-2 ring-slate-200">
-                  <Medal className="h-4 sm:h-4.5 w-4 sm:w-4.5 text-white" />
+                <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-gradient-to-tr from-slate-400 to-slate-300 text-white flex items-center justify-center shadow-xs ring-2 ring-slate-200">
+                  <Medal className="h-6 sm:h-6.5 w-6 sm:w-6.5 text-white" />
                 </div>
               ) : rank === 3 ? (
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-tr from-amber-700 to-amber-600 text-white flex items-center justify-center shadow-xs ring-2 ring-amber-400">
-                  <Medal className="h-4 sm:h-4.5 w-4 sm:w-4.5 text-white" />
+                <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-gradient-to-tr from-amber-700 to-amber-600 text-white flex items-center justify-center shadow-xs ring-2 ring-amber-400">
+                  <Medal className="h-6 sm:h-6.5 w-6 sm:w-6.5 text-white" />
                 </div>
               ) : (
-                <div className="h-8 w-8 sm:h-8.5 sm:w-8.5 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center font-black text-xs border border-amber-300 shadow-xs">
+                <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center font-black text-sm border-2 border-amber-300 shadow-xs">
                   #{rank}
                 </div>
               )}
             </div>
 
             {/* Juara Title & Subtitle */}
-            <div className="text-center flex-1 min-w-0 px-2">
-              <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest text-slate-500 block">
+            <div className="text-center flex-1 min-w-0 px-3">
+              <span className="text-[10px] sm:text-xs uppercase font-extrabold tracking-widest text-slate-500 block">
                 Atas Prestasi Membanggakan Sebagai:
               </span>
               <span
-                className="text-sm sm:text-base lg:text-lg font-black uppercase tracking-wider block leading-tight mt-0.5"
+                className="text-base sm:text-lg lg:text-xl font-black uppercase tracking-wider block leading-tight mt-0.5"
                 style={{ color: themeConfig.primary }}
               >
                 {kategoriPrestasi}
               </span>
-              <span className="text-[9px] sm:text-[10px] font-bold tracking-wider text-slate-500 uppercase mt-0.5 inline-block">
+              <span className="text-xs sm:text-[13px] font-bold tracking-wider text-slate-600 uppercase mt-1 inline-block">
                 {rank <= 3 ? `Peringkat ${rank} Se-Kelas • Rata-Rata ${score.avg}` : `Urutan Rekap Leger Kelas • Rata-Rata ${score.avg}`}
               </span>
             </div>
@@ -1930,23 +1932,23 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
             {/* Right Rank Trophy / Medal */}
             <div className="shrink-0 flex items-center justify-center">
               {rank === 1 ? (
-                <Trophy className="h-6.5 w-6.5 sm:h-7 sm:w-7 text-amber-500 drop-shadow-xs" />
+                <Trophy className="h-8 w-8 sm:h-9 sm:w-9 text-amber-500 drop-shadow-xs" />
               ) : rank === 2 ? (
-                <Medal className="h-6.5 w-6.5 sm:h-7 sm:w-7 text-slate-400 drop-shadow-xs" />
+                <Medal className="h-8 w-8 sm:h-9 sm:w-9 text-slate-400 drop-shadow-xs" />
               ) : rank === 3 ? (
-                <Medal className="h-6.5 w-6.5 sm:h-7 sm:w-7 text-amber-700 drop-shadow-xs" />
+                <Medal className="h-8 w-8 sm:h-9 sm:w-9 text-amber-700 drop-shadow-xs" />
               ) : (
-                <Star className="h-6 w-6 text-amber-500 drop-shadow-xs fill-amber-500/30" />
+                <Star className="h-8 w-8 text-amber-500 drop-shadow-xs fill-amber-500/30" />
               )}
             </div>
           </div>
         </div>
 
         {/* Catatan Apresiasi & Motivasi Belajar */}
-        <p className="text-[11px] sm:text-xs text-slate-700 max-w-3xl mx-auto leading-relaxed italic px-4 font-serif">
+        <p className="text-xs sm:text-sm lg:text-[15px] text-slate-800 max-w-3xl mx-auto leading-relaxed italic px-4 font-serif font-medium">
           "{catatanApresiasi}"
         </p>
-        <p className="text-[9px] sm:text-[10px] text-slate-500 max-w-3xl mx-auto leading-normal">
+        <p className="text-[11px] sm:text-xs text-slate-600 max-w-3xl mx-auto leading-normal mt-0.5">
           Semoga keberhasilan ini senantiasa menjadi inspirasi, pemacu semangat belajar tanpa henti, serta bekal luhur dalam menggapai cita-cita mulia di masa depan.
         </p>
       </div>
@@ -1954,28 +1956,28 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
       {/* ========================================================================= */}
       {/* 4. PENGESAHAN & TANDA TANGAN (BAWAH)                                       */}
       {/* ========================================================================= */}
-      <div className="relative z-10 w-full pt-1.5 sm:pt-2 mt-1 border-t" style={{ borderColor: `${themeConfig.gold}40` }}>
-        <div className="flex items-end justify-between px-4 sm:px-6 text-center text-[11px] sm:text-xs">
+      <div className="relative z-10 w-full pt-2 sm:pt-3 mt-1.5 sm:mt-2 border-t" style={{ borderColor: `${themeConfig.gold}50` }}>
+        <div className="flex items-end justify-between px-6 sm:px-10 text-center text-xs sm:text-sm">
           {/* Tanda Tangan Wali Kelas (Kiri) */}
-          <div className="w-52 sm:w-56">
+          <div className="w-56 sm:w-64">
             <p className="text-slate-700 font-medium leading-tight">Mengetahui,</p>
             <p className="font-bold text-slate-900 leading-tight">Wali Kelas {schoolInfo.className}</p>
 
             {/* Ruang TTD */}
-            <div className="h-10 sm:h-12 print:h-8 flex items-center justify-center">
-              <span className="text-[9px] text-slate-300 italic select-none">Tanda Tangan</span>
+            <div className="h-12 sm:h-14 print:h-10 flex items-center justify-center">
+              <span className="text-[10px] text-slate-300 italic select-none">Tanda Tangan</span>
             </div>
 
-            <p className="font-black text-slate-900 uppercase underline tracking-wide leading-tight">
+            <p className="font-black text-slate-900 uppercase underline tracking-wide leading-tight text-sm sm:text-base">
               {waliKelasName}
             </p>
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-700 mt-0.5">
+            <p className="text-xs font-bold text-slate-700 mt-1">
               NIP. <span className="font-mono">{waliKelasNip}</span>
             </p>
           </div>
 
           {/* Lencana Stempel Piagam di Tengah (Dynamic Seal Decorator) */}
-          <div className="pb-0.5">
+          <div className="pb-1 scale-110 sm:scale-120">
             <PiagamSealDecorator
               sealType={sealType}
               theme={themeConfig}
@@ -1984,19 +1986,19 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
           </div>
 
           {/* Tanda Tangan Kepala Sekolah (Kanan) */}
-          <div className="w-52 sm:w-56">
+          <div className="w-56 sm:w-64">
             <p className="text-slate-800 font-semibold leading-tight">{tanggalPiagam}</p>
             <p className="font-bold text-slate-900 leading-tight">Kepala Sekolah,</p>
 
             {/* Ruang TTD & Stempel */}
-            <div className="h-10 sm:h-12 print:h-8 flex items-center justify-center">
-              <span className="text-[9px] text-slate-300 italic select-none">Tanda Tangan & Cap</span>
+            <div className="h-12 sm:h-14 print:h-10 flex items-center justify-center">
+              <span className="text-[10px] text-slate-300 italic select-none">Tanda Tangan & Cap</span>
             </div>
 
-            <p className="font-black text-slate-900 uppercase underline tracking-wide leading-tight">
+            <p className="font-black text-slate-900 uppercase underline tracking-wide leading-tight text-sm sm:text-base">
               {schoolInfo.headmasterName || 'Kepala Sekolah'}
             </p>
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-700 mt-0.5">
+            <p className="text-xs font-bold text-slate-700 mt-1">
               NIP. <span className="font-mono">{schoolInfo.headmasterNip || '-'}</span>
             </p>
           </div>
