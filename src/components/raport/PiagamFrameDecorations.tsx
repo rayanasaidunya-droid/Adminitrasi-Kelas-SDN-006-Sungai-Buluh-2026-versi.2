@@ -100,6 +100,10 @@ export const FRAME_STYLE_OPTIONS: FrameStyleOption[] = [
   }
 ];
 
+export function getFrameStyleOption(styleId: PiagamBorderStyle): FrameStyleOption {
+  return FRAME_STYLE_OPTIONS.find(f => f.id === styleId) || FRAME_STYLE_OPTIONS[0];
+}
+
 export interface ColorThemeOption {
   id: PiagamColorTheme;
   name: string;
@@ -237,6 +241,336 @@ export const PiagamFrameDecorator: React.FC<PiagamFrameDecoratorProps> = ({
     default:
       return <RoyalBaroqueFrame theme={theme} showInnerBorder={showInnerBorder} />;
   }
+};
+
+// ===============================================================================
+// THUMBNAIL MINIATUR PREVIEW GAYA BINGKAI (UNTUK PEMILIH BINGKAI CEPAT & VISUAL)
+// ===============================================================================
+
+interface FrameStyleThumbnailProps {
+  style: PiagamBorderStyle;
+  colorTheme?: PiagamColorTheme;
+  className?: string;
+  isSelected?: boolean;
+}
+
+export const FrameStyleThumbnail: React.FC<FrameStyleThumbnailProps> = ({
+  style,
+  colorTheme = 'gold' as PiagamColorTheme,
+  className = 'w-full h-24',
+  isSelected = false
+}) => {
+  const theme = getColorTheme(colorTheme);
+
+  const renderCorners = () => {
+    switch (style) {
+      case 'batik_nusantara':
+        return (
+          <>
+            <g>
+              <circle cx="16" cy="16" r="4.5" fill="none" stroke={theme.gold} strokeWidth="1.2" />
+              <circle cx="16" cy="16" r="2" fill={theme.primary} />
+              <path d="M6 6 H26 V9 H9 V26 H6 Z" fill={theme.primary} />
+            </g>
+            <g transform="translate(160, 0) scale(-1, 1)">
+              <circle cx="16" cy="16" r="4.5" fill="none" stroke={theme.gold} strokeWidth="1.2" />
+              <circle cx="16" cy="16" r="2" fill={theme.primary} />
+              <path d="M6 6 H26 V9 H9 V26 H6 Z" fill={theme.primary} />
+            </g>
+            <g transform="translate(0, 100) scale(1, -1)">
+              <circle cx="16" cy="16" r="4.5" fill="none" stroke={theme.gold} strokeWidth="1.2" />
+              <circle cx="16" cy="16" r="2" fill={theme.primary} />
+              <path d="M6 6 H26 V9 H9 V26 H6 Z" fill={theme.primary} />
+            </g>
+            <g transform="translate(160, 100) scale(-1, -1)">
+              <circle cx="16" cy="16" r="4.5" fill="none" stroke={theme.gold} strokeWidth="1.2" />
+              <circle cx="16" cy="16" r="2" fill={theme.primary} />
+              <path d="M6 6 H26 V9 H9 V26 H6 Z" fill={theme.primary} />
+            </g>
+          </>
+        );
+      case 'guilloche_security':
+        return (
+          <>
+            <g>
+              <path d="M6 6 L26 6 L20 12 L12 12 L12 20 L6 26 Z" fill={theme.primary} />
+              <circle cx="18" cy="18" r="4" fill="none" stroke={theme.gold} strokeWidth="1" />
+              <circle cx="18" cy="18" r="1.5" fill={theme.primary} />
+            </g>
+            <g transform="translate(160, 0) scale(-1, 1)">
+              <path d="M6 6 L26 6 L20 12 L12 12 L12 20 L6 26 Z" fill={theme.primary} />
+              <circle cx="18" cy="18" r="4" fill="none" stroke={theme.gold} strokeWidth="1" />
+              <circle cx="18" cy="18" r="1.5" fill={theme.primary} />
+            </g>
+            <g transform="translate(0, 100) scale(1, -1)">
+              <path d="M6 6 L26 6 L20 12 L12 12 L12 20 L6 26 Z" fill={theme.primary} />
+              <circle cx="18" cy="18" r="4" fill="none" stroke={theme.gold} strokeWidth="1" />
+              <circle cx="18" cy="18" r="1.5" fill={theme.primary} />
+            </g>
+            <g transform="translate(160, 100) scale(-1, -1)">
+              <path d="M6 6 L26 6 L20 12 L12 12 L12 20 L6 26 Z" fill={theme.primary} />
+              <circle cx="18" cy="18" r="4" fill="none" stroke={theme.gold} strokeWidth="1" />
+              <circle cx="18" cy="18" r="1.5" fill={theme.primary} />
+            </g>
+          </>
+        );
+      case 'laurel_honor':
+        return (
+          <>
+            <g>
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <path d="M12 12 Q 22 13, 26 22" stroke={theme.gold} strokeWidth="1.2" fill="none" />
+              <ellipse cx="16" cy="13" rx="2.5" ry="1.2" transform="rotate(-20 16 13)" fill={theme.gold} />
+              <ellipse cx="13" cy="16" rx="2.5" ry="1.2" transform="rotate(-70 13 16)" fill={theme.primary} />
+              <ellipse cx="22" cy="16" rx="2.5" ry="1.2" transform="rotate(10 22 16)" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 0) scale(-1, 1)">
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <path d="M12 12 Q 22 13, 26 22" stroke={theme.gold} strokeWidth="1.2" fill="none" />
+              <ellipse cx="16" cy="13" rx="2.5" ry="1.2" transform="rotate(-20 16 13)" fill={theme.gold} />
+              <ellipse cx="13" cy="16" rx="2.5" ry="1.2" transform="rotate(-70 13 16)" fill={theme.primary} />
+              <ellipse cx="22" cy="16" rx="2.5" ry="1.2" transform="rotate(10 22 16)" fill={theme.gold} />
+            </g>
+            <g transform="translate(0, 100) scale(1, -1)">
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <path d="M12 12 Q 22 13, 26 22" stroke={theme.gold} strokeWidth="1.2" fill="none" />
+              <ellipse cx="16" cy="13" rx="2.5" ry="1.2" transform="rotate(-20 16 13)" fill={theme.gold} />
+              <ellipse cx="13" cy="16" rx="2.5" ry="1.2" transform="rotate(-70 13 16)" fill={theme.primary} />
+              <ellipse cx="22" cy="16" rx="2.5" ry="1.2" transform="rotate(10 22 16)" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 100) scale(-1, -1)">
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <path d="M12 12 Q 22 13, 26 22" stroke={theme.gold} strokeWidth="1.2" fill="none" />
+              <ellipse cx="16" cy="13" rx="2.5" ry="1.2" transform="rotate(-20 16 13)" fill={theme.gold} />
+              <ellipse cx="13" cy="16" rx="2.5" ry="1.2" transform="rotate(-70 13 16)" fill={theme.primary} />
+              <ellipse cx="22" cy="16" rx="2.5" ry="1.2" transform="rotate(10 22 16)" fill={theme.gold} />
+            </g>
+          </>
+        );
+      case 'geometric_star':
+        return (
+          <>
+            <g>
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <rect x="14" y="14" width="7" height="7" fill={theme.gold} stroke={theme.primary} strokeWidth="0.8" />
+              <rect x="14" y="14" width="7" height="7" transform="rotate(45 17.5 17.5)" fill={theme.primary} />
+            </g>
+            <g transform="translate(160, 0) scale(-1, 1)">
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <rect x="14" y="14" width="7" height="7" fill={theme.gold} stroke={theme.primary} strokeWidth="0.8" />
+              <rect x="14" y="14" width="7" height="7" transform="rotate(45 17.5 17.5)" fill={theme.primary} />
+            </g>
+            <g transform="translate(0, 100) scale(1, -1)">
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <rect x="14" y="14" width="7" height="7" fill={theme.gold} stroke={theme.primary} strokeWidth="0.8" />
+              <rect x="14" y="14" width="7" height="7" transform="rotate(45 17.5 17.5)" fill={theme.primary} />
+            </g>
+            <g transform="translate(160, 100) scale(-1, -1)">
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <rect x="14" y="14" width="7" height="7" fill={theme.gold} stroke={theme.primary} strokeWidth="0.8" />
+              <rect x="14" y="14" width="7" height="7" transform="rotate(45 17.5 17.5)" fill={theme.primary} />
+            </g>
+          </>
+        );
+      case 'art_deco_luxury':
+        return (
+          <>
+            <g>
+              <polygon points="6,6 26,6 26,9 10,9 10,26 6,26" fill={theme.primary} />
+              <polygon points="10,10 22,10 22,12 12,12 12,22 10,22" fill={theme.gold} />
+              <polygon points="18,18 22,22 18,26 14,22" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 0) scale(-1, 1)">
+              <polygon points="6,6 26,6 26,9 10,9 10,26 6,26" fill={theme.primary} />
+              <polygon points="10,10 22,10 22,12 12,12 12,22 10,22" fill={theme.gold} />
+              <polygon points="18,18 22,22 18,26 14,22" fill={theme.gold} />
+            </g>
+            <g transform="translate(0, 100) scale(1, -1)">
+              <polygon points="6,6 26,6 26,9 10,9 10,26 6,26" fill={theme.primary} />
+              <polygon points="10,10 22,10 22,12 12,12 12,22 10,22" fill={theme.gold} />
+              <polygon points="18,18 22,22 18,26 14,22" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 100) scale(-1, -1)">
+              <polygon points="6,6 26,6 26,9 10,9 10,26 6,26" fill={theme.primary} />
+              <polygon points="10,10 22,10 22,12 12,12 12,22 10,22" fill={theme.gold} />
+              <polygon points="18,18 22,22 18,26 14,22" fill={theme.gold} />
+            </g>
+          </>
+        );
+      case 'celestial_stars':
+        return (
+          <>
+            <g>
+              <polygon points="6,14 14,6 26,6 26,8 15,8 8,15 8,26 6,26" fill={theme.primary} />
+              <polygon points="17,14 18,17 21,18 18,19 17,22 16,19 13,18 16,17" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 0) scale(-1, 1)">
+              <polygon points="6,14 14,6 26,6 26,8 15,8 8,15 8,26 6,26" fill={theme.primary} />
+              <polygon points="17,14 18,17 21,18 18,19 17,22 16,19 13,18 16,17" fill={theme.gold} />
+            </g>
+            <g transform="translate(0, 100) scale(1, -1)">
+              <polygon points="6,14 14,6 26,6 26,8 15,8 8,15 8,26 6,26" fill={theme.primary} />
+              <polygon points="17,14 18,17 21,18 18,19 17,22 16,19 13,18 16,17" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 100) scale(-1, -1)">
+              <polygon points="6,14 14,6 26,6 26,8 15,8 8,15 8,26 6,26" fill={theme.primary} />
+              <polygon points="17,14 18,17 21,18 18,19 17,22 16,19 13,18 16,17" fill={theme.gold} />
+            </g>
+          </>
+        );
+      case 'vintage_scroll':
+        return (
+          <>
+            <g>
+              <path d="M6 6 Q 16 6, 26 6 L 26 8 Q 8 8, 8 26 L 6 26 Z" fill={theme.primary} />
+              <circle cx="17" cy="17" r="4" fill="none" stroke={theme.gold} strokeWidth="1" />
+              <circle cx="17" cy="17" r="1.5" fill={theme.primary} />
+              <circle cx="12" cy="12" r="1" fill={theme.gold} />
+              <circle cx="22" cy="12" r="1" fill={theme.gold} />
+              <circle cx="12" cy="22" r="1" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 0) scale(-1, 1)">
+              <path d="M6 6 Q 16 6, 26 6 L 26 8 Q 8 8, 8 26 L 6 26 Z" fill={theme.primary} />
+              <circle cx="17" cy="17" r="4" fill="none" stroke={theme.gold} strokeWidth="1" />
+              <circle cx="17" cy="17" r="1.5" fill={theme.primary} />
+              <circle cx="12" cy="12" r="1" fill={theme.gold} />
+              <circle cx="22" cy="12" r="1" fill={theme.gold} />
+              <circle cx="12" cy="22" r="1" fill={theme.gold} />
+            </g>
+            <g transform="translate(0, 100) scale(1, -1)">
+              <path d="M6 6 Q 16 6, 26 6 L 26 8 Q 8 8, 8 26 L 6 26 Z" fill={theme.primary} />
+              <circle cx="17" cy="17" r="4" fill="none" stroke={theme.gold} strokeWidth="1" />
+              <circle cx="17" cy="17" r="1.5" fill={theme.primary} />
+              <circle cx="12" cy="12" r="1" fill={theme.gold} />
+              <circle cx="22" cy="12" r="1" fill={theme.gold} />
+              <circle cx="12" cy="22" r="1" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 100) scale(-1, -1)">
+              <path d="M6 6 Q 16 6, 26 6 L 26 8 Q 8 8, 8 26 L 6 26 Z" fill={theme.primary} />
+              <circle cx="17" cy="17" r="4" fill="none" stroke={theme.gold} strokeWidth="1" />
+              <circle cx="17" cy="17" r="1.5" fill={theme.primary} />
+              <circle cx="12" cy="12" r="1" fill={theme.gold} />
+              <circle cx="22" cy="12" r="1" fill={theme.gold} />
+              <circle cx="12" cy="22" r="1" fill={theme.gold} />
+            </g>
+          </>
+        );
+      case 'diplomatic_classic':
+        return (
+          <>
+            <g>
+              <path d="M6 6 H26 V8 H10 V14 H16 V12 H12 V10 H20 V16 H8 V8 H24 V6 H6 V26 H8 V18 H18 V26 H6 Z" fill={theme.primary} />
+              <rect x="12" y="12" width="2.5" height="2.5" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 0) scale(-1, 1)">
+              <path d="M6 6 H26 V8 H10 V14 H16 V12 H12 V10 H20 V16 H8 V8 H24 V6 H6 V26 H8 V18 H18 V26 H6 Z" fill={theme.primary} />
+              <rect x="12" y="12" width="2.5" height="2.5" fill={theme.gold} />
+            </g>
+            <g transform="translate(0, 100) scale(1, -1)">
+              <path d="M6 6 H26 V8 H10 V14 H16 V12 H12 V10 H20 V16 H8 V8 H24 V6 H6 V26 H8 V18 H18 V26 H6 Z" fill={theme.primary} />
+              <rect x="12" y="12" width="2.5" height="2.5" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 100) scale(-1, -1)">
+              <path d="M6 6 H26 V8 H10 V14 H16 V12 H12 V10 H20 V16 H8 V8 H24 V6 H6 V26 H8 V18 H18 V26 H6 Z" fill={theme.primary} />
+              <rect x="12" y="12" width="2.5" height="2.5" fill={theme.gold} />
+            </g>
+          </>
+        );
+      case 'royal_baroque':
+      default:
+        return (
+          <>
+            <g>
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <path d="M10 10 C10 6, 20 5, 23 10 C25 13, 22 17, 18 17 C14 17, 12 13, 15 10" stroke={theme.gold} strokeWidth="1.2" fill="none" />
+              <circle cx="12" cy="12" r="2" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 0) scale(-1, 1)">
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <path d="M10 10 C10 6, 20 5, 23 10 C25 13, 22 17, 18 17 C14 17, 12 13, 15 10" stroke={theme.gold} strokeWidth="1.2" fill="none" />
+              <circle cx="12" cy="12" r="2" fill={theme.gold} />
+            </g>
+            <g transform="translate(0, 100) scale(1, -1)">
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <path d="M10 10 C10 6, 20 5, 23 10 C25 13, 22 17, 18 17 C14 17, 12 13, 15 10" stroke={theme.gold} strokeWidth="1.2" fill="none" />
+              <circle cx="12" cy="12" r="2" fill={theme.gold} />
+            </g>
+            <g transform="translate(160, 100) scale(-1, -1)">
+              <path d="M6 6 H26 V8 H8 V26 H6 Z" fill={theme.primary} />
+              <path d="M10 10 C10 6, 20 5, 23 10 C25 13, 22 17, 18 17 C14 17, 12 13, 15 10" stroke={theme.gold} strokeWidth="1.2" fill="none" />
+              <circle cx="12" cy="12" r="2" fill={theme.gold} />
+            </g>
+            <path d="M80 6 L82 10 L86 10 L83 12 L84 16 L80 13 L76 16 L77 12 L74 10 L78 10 Z" fill={theme.gold} />
+            <path d="M80 94 L82 90 L86 90 L83 88 L84 84 L80 87 L76 84 L77 88 L74 90 L78 90 Z" fill={theme.gold} />
+          </>
+        );
+    }
+  };
+
+  return (
+    <div className={`relative overflow-hidden rounded-lg bg-white border ${isSelected ? 'border-amber-500 shadow-sm ring-1 ring-amber-400' : 'border-slate-200'} ${className}`}>
+      <svg viewBox="0 0 160 100" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+        {/* Paper Background */}
+        <rect x="2" y="2" width="156" height="96" rx="2" fill="#fffefb" stroke={theme.primary} strokeWidth="2.2" />
+        
+        {/* Inner Border Rect */}
+        <rect
+          x="6.5"
+          y="6.5"
+          width="147"
+          height="87"
+          rx="1"
+          fill="none"
+          stroke={theme.gold}
+          strokeWidth="0.8"
+          strokeDasharray={style === 'batik_nusantara' || style === 'vintage_scroll' ? '2.5 1.5' : undefined}
+        />
+
+        {/* Distinctive Corner Graphics */}
+        {renderCorners()}
+
+        {/* Mini Certificate Content Placeholder */}
+        <line x1="32" y1="16" x2="128" y2="16" stroke={theme.primary} strokeWidth="1.2" strokeOpacity="0.4" />
+        <line x1="42" y1="19" x2="118" y2="19" stroke={theme.gold} strokeWidth="0.8" strokeOpacity="0.6" />
+
+        {/* Judul Piagam */}
+        <rect x="52" y="23" width="56" height="4.5" rx="1" fill={theme.titleColor} />
+
+        {/* Nama Siswa */}
+        <rect x="44" y="34" width="72" height="5" rx="1" fill={theme.primary} />
+        <line x1="50" y1="42" x2="110" y2="42" stroke="#94a3b8" strokeWidth="1" strokeDasharray="2 1" />
+
+        {/* Box Gelar Persegi Panjang Landscape */}
+        <rect
+          x="28"
+          y="47"
+          width="104"
+          height="16"
+          rx="2.5"
+          fill={theme.primary}
+          fillOpacity="0.08"
+          stroke={theme.gold}
+          strokeWidth="0.9"
+        />
+        <circle cx="36" cy="55" r="3" fill={theme.gold} />
+        <rect x="44" y="52" width="60" height="3" rx="0.8" fill={theme.primary} />
+        <rect x="48" y="57" width="46" height="2" rx="0.5" fill="#64748b" />
+        <circle cx="124" cy="55" r="3" fill={theme.gold} />
+
+        {/* Catatan Apresiasi mini */}
+        <line x1="36" y1="68" x2="124" y2="68" stroke="#94a3b8" strokeWidth="0.8" strokeOpacity="0.7" />
+        <line x1="44" y1="71" x2="116" y2="71" stroke="#94a3b8" strokeWidth="0.8" strokeOpacity="0.5" />
+
+        {/* TTD mini kiri & kanan */}
+        <line x1="28" y1="84" x2="52" y2="84" stroke="#475569" strokeWidth="0.9" />
+        <line x1="108" y1="84" x2="132" y2="84" stroke="#475569" strokeWidth="0.9" />
+
+        {/* Mini Gold Seal Badge at center bottom */}
+        <circle cx="80" cy="80" r="4.5" fill={theme.gold} />
+        <circle cx="80" cy="80" r="2.2" fill="#ffffff" />
+      </svg>
+    </div>
+  );
 };
 
 // -------------------------------------------------------------------------------

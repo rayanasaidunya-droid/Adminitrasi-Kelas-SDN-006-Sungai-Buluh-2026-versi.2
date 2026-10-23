@@ -10,6 +10,8 @@ import {
   FRAME_STYLE_OPTIONS,
   COLOR_THEME_OPTIONS,
   getColorTheme,
+  getFrameStyleOption,
+  FrameStyleThumbnail,
   PiagamFrameDecorator,
   PiagamSealDecorator
 } from './PiagamFrameDecorations';
@@ -267,6 +269,7 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
   const [batchPrintStudents, setBatchPrintStudents] = useState<Student[] | null>(null);
   const [customDataMap, setCustomDataMap] = useState<Record<string, PiagamCustomData>>({});
   const [isEditingCustom, setIsEditingCustom] = useState(false);
+  const [isFrameModalOpen, setIsFrameModalOpen] = useState(false);
 
   // Konfigurasi Penomoran Otomatis Piagam Standar Sekolah (e.g. '001/SDN006/PP/XI/2024')
   const [numberingConfig, setNumberingConfig] = useState<PiagamNumberingConfig>(() =>
@@ -605,6 +608,22 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
 
           {/* Quick Print & Download Actions */}
           <div className="flex items-center gap-2 flex-wrap shrink-0">
+            {/* Tombol Pemilih Gaya Bingkai */}
+            <button
+              type="button"
+              onClick={() => setIsFrameModalOpen(true)}
+              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-amber-900/60 hover:bg-amber-900/80 text-white font-black text-xs shadow-md active:scale-95 transition-all border border-amber-300/40 cursor-pointer"
+              title="Buka katalog lengkap dan pemilih variasi desain gaya bingkai piagam"
+            >
+              <Sparkles className="h-4 w-4 text-yellow-300 shrink-0" />
+              <div className="text-left">
+                <span className="block text-[9px] text-amber-200 font-bold uppercase leading-none">Pilih Gaya Bingkai:</span>
+                <span className="block text-xs font-black truncate max-w-[130px] leading-tight">
+                  {getFrameStyleOption(borderStyle).name.split('(')[0].trim()}
+                </span>
+              </div>
+            </button>
+
             {/* Tombol Unduh sebagai PDF Langsung Tanpa Dialog Printer */}
             <button
               type="button"
@@ -847,31 +866,67 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-amber-600" />
               <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                Pilihan Model Bingkai Piagam ({FRAME_STYLE_OPTIONS.length} Desain Menarik):
+                Pemilih Gaya Bingkai Piagam ({FRAME_STYLE_OPTIONS.length} Desain Menarik):
               </span>
             </div>
 
-            {/* Filter Kategori Bingkai */}
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
-              {['all', 'Klasik & Kerajaan', 'Tradisi Nusantara', 'Resmi & Kedinasan', 'Modern & Prestisius'].map(cat => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setFrameCategoryFilter(cat)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-colors ${
-                    frameCategoryFilter === cat
-                      ? 'bg-amber-600 text-white'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
-                  }`}
-                >
-                  {cat === 'all' ? 'Semua Model' : cat}
-                </button>
-              ))}
+            <div className="flex items-center gap-2">
+              {/* Tombol Buka Katalog Dialog */}
+              <button
+                type="button"
+                onClick={() => setIsFrameModalOpen(true)}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-black bg-amber-100 hover:bg-amber-200 text-amber-900 dark:bg-amber-900/60 dark:text-amber-200 flex items-center gap-1 transition-colors cursor-pointer border border-amber-300 dark:border-amber-700"
+              >
+                <Layers className="h-3 w-3" />
+                <span>Katalog Besar</span>
+              </button>
+
+              {/* Filter Kategori Bingkai */}
+              <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+                {['all', 'Klasik & Kerajaan', 'Tradisi Nusantara', 'Resmi & Kedinasan', 'Modern & Prestisius'].map(cat => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setFrameCategoryFilter(cat)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-colors cursor-pointer ${
+                      frameCategoryFilter === cat
+                        ? 'bg-amber-600 text-white shadow-xs'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                    }`}
+                  >
+                    {cat === 'all' ? 'Semua Model' : cat}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Grid 9 Model Bingkai Eksklusif */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          {/* Banner Gaya Bingkai Terpilih Saat Ini */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 dark:from-slate-800 dark:via-amber-950/30 dark:to-slate-800 border border-amber-300 dark:border-amber-700/60 text-xs shadow-2xs">
+            <div className="flex items-center gap-2">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white font-black text-[10px]">
+                ✓
+              </span>
+              <div>
+                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">Gaya Bingkai Aktif: </span>
+                <strong className="text-amber-950 dark:text-amber-200 text-xs">
+                  {getFrameStyleOption(borderStyle).name}
+                </strong>
+                <span className="text-[11px] text-slate-500 ml-1.5">
+                  • Kategori: <strong>{getFrameStyleOption(borderStyle).category}</strong>
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-400">
+              <span className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 font-extrabold text-amber-800 dark:text-amber-300">
+                Landscape Otomatis
+              </span>
+              <span className="hidden sm:inline">• Presisi proporsional tanpa terpotong</span>
+            </div>
+          </div>
+
+          {/* Grid 9 Model Bingkai Eksklusif dengan Visual Thumbnail */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {displayedFrameOptions.map(frame => {
               const isSelected = borderStyle === frame.id;
               return (
@@ -880,30 +935,43 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
                   type="button"
                   onClick={() => {
                     setBorderStyle(frame.id);
-                    // Optionally suggest matching color theme
                     if (frame.recommendedColor) {
                       setColorTheme(frame.recommendedColor);
                     }
                   }}
-                  className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
+                  className={`p-3 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between group cursor-pointer ${
                     isSelected
-                      ? 'border-amber-600 bg-amber-50/80 dark:bg-amber-950/40 shadow-sm ring-2 ring-amber-500/40'
-                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-amber-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      ? 'border-amber-600 bg-amber-50/90 dark:bg-amber-950/50 shadow-md ring-2 ring-amber-500/40 scale-[1.01]'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-amber-400 hover:shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
+                  {/* Thumbnail Miniatur Preview Bingkai */}
+                  <div className="mb-2.5 overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-900">
+                    <FrameStyleThumbnail
+                      style={frame.id}
+                      colorTheme={colorTheme}
+                      isSelected={isSelected}
+                      className="w-full h-24"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between mb-1">
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 rounded-md">
                       {frame.category}
                     </span>
-                    {isSelected && (
-                      <span className="flex items-center gap-1 text-[11px] font-black text-amber-700 dark:text-amber-300">
-                        <Check className="h-4 w-4 text-amber-600" />
+                    {isSelected ? (
+                      <span className="flex items-center gap-1 text-[11px] font-black text-amber-700 dark:text-amber-300 bg-amber-200/80 dark:bg-amber-900/80 px-2 py-0.5 rounded-md">
+                        <Check className="h-3.5 w-3.5 text-amber-600" />
                         Aktif
+                      </span>
+                    ) : (
+                      <span className="text-[10.5px] font-bold text-slate-400 group-hover:text-amber-600 transition-colors">
+                        Pilih Bingkai →
                       </span>
                     )}
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-slate-900 dark:text-white leading-tight">
+                    <h4 className="text-xs font-black text-slate-900 dark:text-white leading-tight group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors">
                       {frame.name}
                     </h4>
                     <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">
@@ -1250,8 +1318,27 @@ export const PiagamPenghargaanTab: React.FC<PiagamPenghargaanTabProps> = ({
           customDataMap={customDataMap}
           schoolInfo={schoolInfo}
           defaultTanggalPiagam={defaultTanggalPiagam}
+          onSelectBorderStyle={setBorderStyle}
           onOpenNumberingSettings={() => setIsNumberingModalOpen(true)}
           onConfirmBatchPrint={handleStartBatchPrint}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL PEMILIH & KATALOG GAYA BINGKAI PIAGAM PENGHARGAAN                   */}
+      {/* ========================================================================= */}
+      {isFrameModalOpen && (
+        <ModalPemilihGayaBingkai
+          isOpen={isFrameModalOpen}
+          onClose={() => setIsFrameModalOpen(false)}
+          currentStyle={borderStyle}
+          currentColorTheme={colorTheme}
+          onSelectStyle={(style, recommendedColor) => {
+            setBorderStyle(style);
+            if (recommendedColor) {
+              setColorTheme(recommendedColor);
+            }
+          }}
         />
       )}
 
@@ -1591,6 +1678,7 @@ interface ModalCetakMassalPiagamProps {
   customDataMap: Record<string, PiagamCustomData>;
   schoolInfo: SchoolInfo;
   defaultTanggalPiagam: string;
+  onSelectBorderStyle?: (style: PiagamBorderStyle) => void;
   onOpenNumberingSettings?: () => void;
   onConfirmBatchPrint: (selectedStudents: Student[]) => void;
 }
@@ -1608,6 +1696,7 @@ const ModalCetakMassalPiagam: React.FC<ModalCetakMassalPiagamProps> = ({
   customDataMap,
   schoolInfo,
   defaultTanggalPiagam,
+  onSelectBorderStyle,
   onOpenNumberingSettings,
   onConfirmBatchPrint
 }) => {
@@ -1663,14 +1752,14 @@ const ModalCetakMassalPiagam: React.FC<ModalCetakMassalPiagamProps> = ({
                 Cetak Massal Piagam Penghargaan
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Kertas: <strong>{paperSize} Landscape</strong> • Bingkai: <strong>{borderStyle}</strong> • Warna: <strong>{colorTheme}</strong>
+                Kertas: <strong>{paperSize} Landscape</strong> • Bingkai: <strong>{getFrameStyleOption(borderStyle).name.split('(')[0].trim()}</strong>
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 cursor-pointer"
           >
             ✕
           </button>
@@ -1678,6 +1767,33 @@ const ModalCetakMassalPiagam: React.FC<ModalCetakMassalPiagamProps> = ({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {/* Pilihan Gaya Bingkai Sebelum Cetak Massal */}
+          <div className="p-3 rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-slate-800 dark:to-amber-950/40 border border-amber-300 dark:border-amber-700/70 shadow-2xs space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label className="text-xs font-black text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
+                <span>Pilih Gaya Bingkai (Border Style):</span>
+              </label>
+              {onSelectBorderStyle && (
+                <select
+                  value={borderStyle}
+                  onChange={e => onSelectBorderStyle(e.target.value as PiagamBorderStyle)}
+                  className="rounded-lg border-2 border-amber-400 dark:border-amber-700 bg-white dark:bg-slate-900 px-2.5 py-1 text-xs font-black text-amber-950 dark:text-amber-200 shadow-2xs outline-none cursor-pointer"
+                >
+                  {FRAME_STYLE_OPTIONS.map(f => (
+                    <option key={f.id} value={f.id}>
+                      {f.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400">
+              <span className="font-semibold text-amber-900 dark:text-amber-300">
+                {getFrameStyleOption(borderStyle).tagline}
+              </span>
+            </div>
+          </div>
           {/* Format Penomoran Piagam Info Banner */}
           <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 shadow-2xs">
             <div className="flex items-center gap-2">
@@ -1817,7 +1933,7 @@ const ModalCetakMassalPiagam: React.FC<ModalCetakMassalPiagamProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 transition-colors"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 transition-colors cursor-pointer"
           >
             Batal
           </button>
@@ -1825,10 +1941,173 @@ const ModalCetakMassalPiagam: React.FC<ModalCetakMassalPiagamProps> = ({
             type="button"
             disabled={selectedStudentsToPrint.length === 0}
             onClick={() => onConfirmBatchPrint(selectedStudentsToPrint)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             <Printer className="h-4 w-4" />
             <span>Mulai Cetak ({selectedStudentsToPrint.length} Piagam)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ===============================================================================
+// MODAL PEMILIH & KATALOG GAYA BINGKAI PIAGAM (FULL BROWSE & LIVE PREVIEW)
+// ===============================================================================
+
+interface ModalPemilihGayaBingkaiProps {
+  isOpen: boolean;
+  onClose: () => void;
+  currentStyle: PiagamBorderStyle;
+  currentColorTheme: PiagamColorTheme;
+  onSelectStyle: (style: PiagamBorderStyle, recommendedColor?: PiagamColorTheme) => void;
+}
+
+const ModalPemilihGayaBingkai: React.FC<ModalPemilihGayaBingkaiProps> = ({
+  isOpen,
+  onClose,
+  currentStyle,
+  currentColorTheme,
+  onSelectStyle
+}) => {
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+
+  if (!isOpen) return null;
+
+  const filteredOptions = activeCategory === 'all'
+    ? FRAME_STYLE_OPTIONS
+    : FRAME_STYLE_OPTIONS.filter(f => f.category === activeCategory);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+      <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150">
+        {/* Header Modal */}
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-white shadow-xs">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-white">
+                Katalog & Pemilih Gaya Bingkai Piagam
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Pilih variasi desain bingkai piagam penghargaan resmi (Semua model otomatis Landscape)
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Category Tabs */}
+        <div className="px-6 py-2.5 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto">
+          {['all', 'Klasik & Kerajaan', 'Tradisi Nusantara', 'Resmi & Kedinasan', 'Modern & Prestisius'].map(cat => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setActiveCategory(cat)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+                activeCategory === cat
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 border border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              {cat === 'all' ? 'Semua Kategori (9 Desain)' : cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Content Grid */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredOptions.map(frame => {
+              const isSelected = currentStyle === frame.id;
+              return (
+                <div
+                  key={frame.id}
+                  onClick={() => onSelectStyle(frame.id, frame.recommendedColor)}
+                  className={`p-3.5 rounded-2xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between cursor-pointer group ${
+                    isSelected
+                      ? 'border-amber-600 bg-amber-50/90 dark:bg-amber-950/50 shadow-md ring-2 ring-amber-500/40'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-amber-400 hover:shadow-xs'
+                  }`}
+                >
+                  {/* Thumbnail Miniatur Preview */}
+                  <div className="mb-3 overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-900 group-hover:scale-[1.02] transition-transform">
+                    <FrameStyleThumbnail
+                      style={frame.id}
+                      colorTheme={currentColorTheme}
+                      isSelected={isSelected}
+                      className="w-full h-28"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2.5 py-0.5 rounded-md">
+                      {frame.category}
+                    </span>
+                    {isSelected ? (
+                      <span className="flex items-center gap-1 text-[11px] font-black text-amber-700 dark:text-amber-300 bg-amber-200/80 dark:bg-amber-900/80 px-2 py-0.5 rounded-md">
+                        <Check className="h-3.5 w-3.5 text-amber-600" />
+                        Terpilih
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-bold text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Klik untuk Memilih
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <h3 className="text-xs font-black text-slate-900 dark:text-white leading-tight group-hover:text-amber-700 dark:group-hover:text-amber-400">
+                      {frame.name}
+                    </h3>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                      {frame.tagline}
+                    </p>
+                  </div>
+
+                  <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10.5px]">
+                    <span className="text-slate-400">Format: Landscape</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectStyle(frame.id, frame.recommendedColor);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg font-extrabold transition-colors cursor-pointer ${
+                        isSelected
+                          ? 'bg-amber-600 text-white'
+                          : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-100 hover:text-amber-900'
+                      }`}
+                    >
+                      {isSelected ? 'Gaya Aktif' : 'Terapkan'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Footer Modal */}
+        <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-slate-50/50 dark:bg-slate-800/50">
+          <div className="text-xs text-slate-500">
+            Gaya Aktif: <strong className="text-amber-600">{getFrameStyleOption(currentStyle).name}</strong>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black shadow-xs transition-colors cursor-pointer"
+          >
+            Selesai Memilih
           </button>
         </div>
       </div>
