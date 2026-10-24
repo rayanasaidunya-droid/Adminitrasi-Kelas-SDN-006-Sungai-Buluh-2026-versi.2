@@ -275,6 +275,7 @@ export const INITIAL_SCHOOL_INFO: SchoolInfo = {
   phoneNumber: '(021) 7203491',
   email: 'sdn.nusantara01@dki.belajar.id',
   website: 'https://sdnnusantara01.sch.id',
+  headmasterTitle: 'Kepala Sekolah',
   headmasterName: 'Drs. H. Bambang Sutrisno, M.Pd.',
   headmasterNip: '19680315 199303 1 005',
   homeroomTeacherName: 'Sri Wahyuni, S.Pd., Gr.',

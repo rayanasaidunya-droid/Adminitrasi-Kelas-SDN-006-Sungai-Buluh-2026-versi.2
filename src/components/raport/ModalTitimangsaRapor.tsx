@@ -223,7 +223,7 @@ export const ModalTitimangsaRapor: React.FC<ModalTitimangsaRaporProps> = ({
               <strong className="text-slate-800 dark:text-slate-200">{schoolInfo.homeroomTeacherName}</strong>
             </div>
             <div className="flex justify-between">
-              <span>Kepala Sekolah:</span>
+              <span>{schoolInfo.headmasterTitle || 'Kepala Sekolah'}:</span>
               <strong className="text-slate-800 dark:text-slate-200">{schoolInfo.headmasterName}</strong>
             </div>
           </div>

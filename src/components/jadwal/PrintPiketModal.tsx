@@ -108,7 +108,7 @@ export const PrintPiketModal: React.FC<PrintPiketModalProps> = ({ isOpen, onClos
           <div className="pt-6 grid grid-cols-2 text-center text-xs page-break-inside-avoid">
             <div>
               <p>Mengetahui,</p>
-              <p className="font-bold">Kepala Sekolah</p>
+              <p className="font-bold">{schoolInfo.headmasterTitle || 'Kepala Sekolah'}</p>
               <div className="h-16" />
               <p className="font-bold underline">{schoolInfo.headmasterName}</p>
               <p className="text-[11px] text-slate-500">NIP. {schoolInfo.headmasterNip}</p>

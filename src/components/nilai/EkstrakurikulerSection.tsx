@@ -1310,7 +1310,7 @@ export const EkstrakurikulerSection: React.FC = () => {
               <div className="mt-8 grid grid-cols-2 text-[11px] text-center">
                 <div>
                   <p>Mengetahui,</p>
-                  <p className="font-bold">Kepala Sekolah</p>
+                  <p className="font-bold">{schoolInfo.headmasterTitle || 'Kepala Sekolah'}</p>
                   <div className="h-16" />
                   <p className="font-bold underline">{schoolInfo.headmasterName || 'NAMA KEPALA SEKOLAH'}</p>
                   <p>NIP. {schoolInfo.headmasterNip || '----------------------'}</p>

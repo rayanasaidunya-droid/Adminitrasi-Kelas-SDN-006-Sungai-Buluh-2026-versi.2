@@ -449,7 +449,7 @@ export const JurnalMengajarView: React.FC = () => {
               <div className="mt-8 flex justify-between text-xs text-black pt-4 page-break-inside-avoid">
                 <div className="text-center">
                   <p>Mengetahui,</p>
-                  <p>Kepala Sekolah {schoolInfo.schoolName}</p>
+                  <p>{schoolInfo.headmasterTitle || 'Kepala Sekolah'} {schoolInfo.schoolName}</p>
                   <div className="h-16" />
                   <p className="font-bold underline">{schoolInfo.headmasterName}</p>
                   <p>NIP. {schoolInfo.headmasterNip}</p>

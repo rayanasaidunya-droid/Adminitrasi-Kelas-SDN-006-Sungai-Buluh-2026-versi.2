@@ -739,7 +739,7 @@ export const PengaturanView: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
-              {/* Box 1: Kepala Sekolah */}
+              {/* Box 1: Kepala Sekolah / Plt / Plh */}
               <div className="rounded-2xl border border-blue-200 dark:border-blue-900/50 bg-blue-50/40 dark:bg-blue-950/20 p-4 space-y-3.5">
                 <div className="flex items-center justify-between pb-2 border-b border-blue-200/60 dark:border-blue-800/40">
                   <div className="flex items-center gap-2">
@@ -748,7 +748,7 @@ export const PengaturanView: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="text-xs font-extrabold text-blue-950 dark:text-blue-200">
-                        Kepala Sekolah
+                        {formData.headmasterTitle || 'Kepala Sekolah'}
                       </h4>
                       <p className="text-[10.5px] text-blue-700/80 dark:text-blue-300/80">
                         Penandatangan Lembar Pengesahan Rapor
@@ -761,9 +761,57 @@ export const PengaturanView: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
+                  {/* Pilihan Status Jabatan Penandatangan */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+                      Pilihan Status / Jabatan Kepala Sekolah *
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { label: 'Kepala Sekolah', sub: 'Definitif', val: 'Kepala Sekolah' },
+                        { label: 'Plt. Kepala Sekolah', sub: 'Pelaksana Tugas', val: 'Plt. Kepala Sekolah' },
+                        { label: 'Plh. Kepala Sekolah', sub: 'Pelaksana Harian', val: 'Plh. Kepala Sekolah' }
+                      ].map(opt => {
+                        const currentVal = (formData.headmasterTitle || 'Kepala Sekolah').trim().toLowerCase();
+                        const isSelected = currentVal === opt.val.toLowerCase() || 
+                          (opt.val === 'Plt. Kepala Sekolah' && (currentVal === 'plt kepala sekolah' || currentVal === 'plt. kepala sekolah')) ||
+                          (opt.val === 'Plh. Kepala Sekolah' && (currentVal === 'plh kepala sekolah' || currentVal === 'plh. kepala sekolah'));
+                        return (
+                          <button
+                            key={opt.val}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, headmasterTitle: opt.val })}
+                            className={`p-2 rounded-xl border text-center transition-all ${
+                              isSelected
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-xs font-bold ring-2 ring-blue-400/40'
+                                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50/50'
+                            }`}
+                          >
+                            <span className="block text-xs font-bold leading-tight">{opt.label}</span>
+                            <span className={`block text-[10px] mt-0.5 ${isSelected ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'}`}>
+                              {opt.sub}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-2">
+                      <label className="block text-[10.5px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                        Teks Jabatan Resmi pada Dokumen & Rapor:
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: Kepala Sekolah / Plt. Kepala Sekolah / Plh. Kepala Sekolah"
+                        value={formData.headmasterTitle ?? 'Kepala Sekolah'}
+                        onChange={e => setFormData({ ...formData, headmasterTitle: e.target.value })}
+                        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                      Nama Lengkap & Gelar Kepala Sekolah *
+                      Nama Lengkap & Gelar Pejabat Penandatangan *
                     </label>
                     <input
                       type="text"
@@ -777,7 +825,7 @@ export const PengaturanView: React.FC = () => {
 
                   <div>
                     <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                      NIP Kepala Sekolah
+                      NIP Pejabat Penandatangan
                     </label>
                     <input
                       type="text"
@@ -789,9 +837,15 @@ export const PengaturanView: React.FC = () => {
                   </div>
 
                   {/* Signature Preview */}
-                  <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-blue-100 dark:border-slate-800 text-center">
-                    <p className="text-[10px] text-slate-400 font-medium">Format Kolom TTD Rapor:</p>
-                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 underline mt-2">
+                  <div className="p-3.5 rounded-xl bg-white/90 dark:bg-slate-900/90 border border-blue-200 dark:border-slate-800 text-center shadow-xs">
+                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Format Kolom TTD Dokumen & Lembar Rapor:</p>
+                    <p className="text-xs font-bold text-blue-950 dark:text-blue-300 mt-1.5">
+                      {formData.headmasterTitle || 'Kepala Sekolah'},
+                    </p>
+                    <div className="h-7 flex items-center justify-center">
+                      <span className="text-[9.5px] text-slate-300 italic select-none">[Tanda Tangan & Stempel Satuan]</span>
+                    </div>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 underline">
                       {formData.headmasterName || 'Nama Kepala Sekolah'}
                     </p>
                     <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">

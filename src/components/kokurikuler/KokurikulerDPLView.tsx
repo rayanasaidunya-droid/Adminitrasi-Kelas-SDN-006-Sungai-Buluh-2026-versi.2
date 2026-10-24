@@ -1502,7 +1502,7 @@ export const KokurikulerDPLView: React.FC = () => {
             <div className="grid grid-cols-2 gap-8 text-xs pt-4 print-avoid-break">
               <div className="text-center">
                 <p>Mengetahui,</p>
-                <p className="font-bold">Kepala {schoolInfo.schoolName}</p>
+                <p className="font-bold">{schoolInfo.headmasterTitle || 'Kepala Sekolah'} {schoolInfo.schoolName}</p>
                 <div className="h-20"></div>
                 <p className="font-bold underline uppercase">{schoolInfo.headmasterName}</p>
                 <p>NIP. {schoolInfo.headmasterNip}</p>

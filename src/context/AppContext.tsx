@@ -1748,6 +1748,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         teacherName: initialConfig?.teacherName || initialConfig?.homeroomTeacherName || schoolInfo.teacherName || '',
         homeroomTeacherNip: initialConfig?.homeroomTeacherNip || initialConfig?.teacherNip || schoolInfo.homeroomTeacherNip || '',
         teacherNip: initialConfig?.teacherNip || initialConfig?.homeroomTeacherNip || schoolInfo.teacherNip || '',
+        headmasterTitle: initialConfig?.headmasterTitle || schoolInfo.headmasterTitle || INITIAL_SCHOOL_INFO.headmasterTitle || 'Kepala Sekolah',
         headmasterName: initialConfig?.headmasterName || schoolInfo.headmasterName || INITIAL_SCHOOL_INFO.headmasterName,
         headmasterNip: initialConfig?.headmasterNip || schoolInfo.headmasterNip || INITIAL_SCHOOL_INFO.headmasterNip,
         tanggalRapor: `${schoolInfo.city || 'Kota Jakarta Selatan'}, 19 Desember ${startYear}`,

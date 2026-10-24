@@ -266,7 +266,7 @@ export const exportToWordDoc = (
       <td>
         <br />
         Mengetahui,<br />
-        <strong>Kepala ${schoolInfo.schoolName}</strong>
+        <strong>${schoolInfo.headmasterTitle || 'Kepala Sekolah'} ${schoolInfo.schoolName}</strong>
         <div class="sign-space"></div>
         <span class="sign-name">${schoolInfo.headmasterName}</span><br />
         NIP. ${schoolInfo.headmasterNip || '-'}

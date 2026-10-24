@@ -1988,7 +1988,7 @@ const PiagamCertificateCard: React.FC<PiagamCertificateCardProps> = ({
           {/* Tanda Tangan Kepala Sekolah (Kanan) */}
           <div className="w-56 sm:w-64">
             <p className="text-slate-800 font-semibold leading-tight">{tanggalPiagam}</p>
-            <p className="font-bold text-slate-900 leading-tight">Kepala Sekolah,</p>
+            <p className="font-bold text-slate-900 leading-tight">{schoolInfo.headmasterTitle || 'Kepala Sekolah'},</p>
 
             {/* Ruang TTD & Stempel */}
             <div className="h-12 sm:h-14 print:h-10 flex items-center justify-center">

@@ -1553,7 +1553,7 @@ export const DataSiswaView: React.FC = () => {
                       {/* Pengesahan Kepala Sekolah */}
                       <div className="text-right leading-tight">
                         <p>{schoolInfo.city}, 15 Juli 2025</p>
-                        <p className="font-semibold text-white/90">Kepala Sekolah,</p>
+                        <p className="font-semibold text-white/90">{schoolInfo.headmasterTitle || 'Kepala Sekolah'},</p>
                         <div className="h-5 my-0.5" />
                         <p className="font-bold text-white underline text-[8.5px] uppercase">
                           {schoolInfo.headmasterName}
@@ -1748,7 +1748,7 @@ export const DataSiswaView: React.FC = () => {
               <div className="mt-8 flex justify-between text-xs text-black pt-4 page-break-inside-avoid">
                 <div className="text-center">
                   <p>Mengetahui,</p>
-                  <p>Kepala Sekolah {schoolInfo.schoolName}</p>
+                  <p>{schoolInfo.headmasterTitle || 'Kepala Sekolah'} {schoolInfo.schoolName}</p>
                   <div className="h-16" />
                   <p className="font-bold underline">{schoolInfo.headmasterName}</p>
                   <p>NIP. {schoolInfo.headmasterNip}</p>

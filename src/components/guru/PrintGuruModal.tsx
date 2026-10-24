@@ -318,7 +318,7 @@ export const PrintGuruModal: React.FC<PrintGuruModalProps> = ({
             <div className="space-y-16">
               <p className="font-semibold">
                 Mengetahui,<br />
-                Kepala Sekolah {schoolInfo.schoolName}
+                {schoolInfo.headmasterTitle || 'Kepala Sekolah'} {schoolInfo.schoolName}
               </p>
               <div>
                 <p className="font-bold underline uppercase">{schoolInfo.headmasterName}</p>

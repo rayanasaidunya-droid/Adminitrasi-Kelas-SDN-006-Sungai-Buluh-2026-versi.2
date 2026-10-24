@@ -63,6 +63,7 @@ export const ModalEditKelasFaseGuru: React.FC<ModalEditKelasFaseGuruProps> = ({
     npsn: schoolInfo.npsn || '',
     homeroomTeacherName: schoolInfo.homeroomTeacherName || '',
     homeroomTeacherNip: schoolInfo.homeroomTeacherNip || '',
+    headmasterTitle: schoolInfo.headmasterTitle || 'Kepala Sekolah',
     headmasterName: schoolInfo.headmasterName || '',
     headmasterNip: schoolInfo.headmasterNip || ''
   });
@@ -120,6 +121,7 @@ export const ModalEditKelasFaseGuru: React.FC<ModalEditKelasFaseGuruProps> = ({
         npsn: schoolInfo.npsn || '',
         homeroomTeacherName: schoolInfo.homeroomTeacherName || '',
         homeroomTeacherNip: schoolInfo.homeroomTeacherNip || '',
+        headmasterTitle: schoolInfo.headmasterTitle || 'Kepala Sekolah',
         headmasterName: schoolInfo.headmasterName || '',
         headmasterNip: schoolInfo.headmasterNip || ''
       });
@@ -180,6 +182,7 @@ export const ModalEditKelasFaseGuru: React.FC<ModalEditKelasFaseGuruProps> = ({
       npsn: formData.npsn.trim(),
       homeroomTeacherName: formData.homeroomTeacherName.trim(),
       homeroomTeacherNip: formData.homeroomTeacherNip.trim(),
+      headmasterTitle: formData.headmasterTitle || 'Kepala Sekolah',
       headmasterName: formData.headmasterName.trim(),
       headmasterNip: formData.headmasterNip.trim()
     });
@@ -648,8 +651,42 @@ export const ModalEditKelasFaseGuru: React.FC<ModalEditKelasFaseGuruProps> = ({
             <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/60 bg-emerald-50/40 dark:bg-emerald-950/20 p-4 space-y-3">
               <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-300">
                 <Award className="h-4 w-4" />
-                <h4 className="text-xs font-bold uppercase tracking-wider">Identitas Kepala Sekolah</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider">Identitas {formData.headmasterTitle || 'Kepala Sekolah'}</h4>
               </div>
+
+              {/* Pilihan Status / Jabatan Kepala Sekolah */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Pilihan Status / Jabatan Kepala Sekolah
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Kepala Sekolah', val: 'Kepala Sekolah' },
+                    { label: 'Plt. Kepala Sekolah', val: 'Plt. Kepala Sekolah' },
+                    { label: 'Plh. Kepala Sekolah', val: 'Plh. Kepala Sekolah' }
+                  ].map(opt => {
+                    const currentVal = (formData.headmasterTitle || 'Kepala Sekolah').trim().toLowerCase();
+                    const isSelected = currentVal === opt.val.toLowerCase() ||
+                      (opt.val === 'Plt. Kepala Sekolah' && (currentVal === 'plt kepala sekolah' || currentVal === 'plt. kepala sekolah')) ||
+                      (opt.val === 'Plh. Kepala Sekolah' && (currentVal === 'plh kepala sekolah' || currentVal === 'plh. kepala sekolah'));
+                    return (
+                      <button
+                        key={opt.val}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, headmasterTitle: opt.val })}
+                        className={`py-1.5 px-2 rounded-xl border text-center text-xs font-bold transition-all ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-emerald-400'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">

@@ -608,7 +608,7 @@ export const StudentCoverAndBiodataSheet: React.FC<StudentCoverAndBiodataSheetPr
               {/* Titimangsa & Tanda Tangan Kepala Sekolah (Sesuai Titimangsa Rapor) */}
               <div className="text-center text-xs sm:text-sm min-w-[240px]">
                 <p className="text-slate-800 font-semibold">{reportReleaseDate}</p>
-                <p className="font-bold text-slate-900 mt-1">Kepala Sekolah,</p>
+                <p className="font-bold text-slate-900 mt-1">{schoolInfo.headmasterTitle || 'Kepala Sekolah'},</p>
                 
                 {/* Ruang Tanda Tangan & Stempel */}
                 <div className="h-20" />

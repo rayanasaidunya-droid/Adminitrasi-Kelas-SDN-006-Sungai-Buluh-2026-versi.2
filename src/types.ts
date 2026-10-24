@@ -40,6 +40,7 @@ export interface SchoolInfo {
   phoneNumber: string;
   email: string;
   website: string;
+  headmasterTitle?: string; // 'Kepala Sekolah' | 'Plt. Kepala Sekolah' | 'Plh. Kepala Sekolah' atau kustom
   headmasterName: string;
   headmasterNip: string;
   homeroomTeacherName: string;

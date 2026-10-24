@@ -139,7 +139,7 @@ export const PrintJadwalModal: React.FC<PrintJadwalModalProps> = ({ isOpen, onCl
           <div className="pt-6 grid grid-cols-2 text-center text-xs page-break-inside-avoid">
             <div>
               <p>Mengetahui,</p>
-              <p className="font-bold">Kepala Sekolah {schoolInfo.schoolName}</p>
+              <p className="font-bold">{schoolInfo.headmasterTitle || 'Kepala Sekolah'} {schoolInfo.schoolName}</p>
               <div className="h-16" />
               <p className="font-bold underline">{schoolInfo.headmasterName}</p>
               <p className="text-[11px] text-slate-500">NIP. {schoolInfo.headmasterNip}</p>

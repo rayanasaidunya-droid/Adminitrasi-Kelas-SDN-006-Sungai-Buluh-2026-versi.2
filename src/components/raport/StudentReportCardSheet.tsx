@@ -968,7 +968,7 @@ export const StudentReportCardSheet: React.FC<StudentReportCardSheetProps> = ({
 
               <div>
                 <p className="text-slate-700 print:text-black">Mengetahui,</p>
-                <p className="font-bold text-black">Kepala Sekolah,</p>
+                <p className="font-bold text-black">{schoolInfo.headmasterTitle || 'Kepala Sekolah'},</p>
                 <div className="h-16 sm:h-20 print:h-16" />
                 <p className="font-bold underline text-black">{schoolInfo.headmasterName}</p>
                 <p className="text-[10px] text-slate-700 print:text-black">NIP. {schoolInfo.headmasterNip}</p>

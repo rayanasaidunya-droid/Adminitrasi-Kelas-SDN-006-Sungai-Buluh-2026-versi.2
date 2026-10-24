@@ -1268,7 +1268,7 @@ export const ModalCetakLeger: React.FC<ModalCetakLegerProps> = ({
               <div className="mt-6 sm:mt-8 grid grid-cols-2 text-[10.5px] text-center text-black page-break-inside-avoid">
                 <div>
                   <p>Mengetahui,</p>
-                  <p className="font-bold">Kepala Sekolah {schoolInfo.schoolName}</p>
+                  <p className="font-bold">{schoolInfo.headmasterTitle || 'Kepala Sekolah'} {schoolInfo.schoolName}</p>
                   <div className={scale.signGap} />
                   <p className="font-bold uppercase underline">
                     {schoolInfo.headmasterName || 'NAMA KEPALA SEKOLAH'}

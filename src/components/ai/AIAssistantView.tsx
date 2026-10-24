@@ -1092,7 +1092,7 @@ export const AIAssistantView: React.FC = () => {
                       {/* Left: Mengetahui Kepala Sekolah */}
                       <div className="flex flex-col items-center">
                         <p className="leading-snug">Mengetahui,</p>
-                        <p className="font-bold leading-snug">Kepala {schoolInfo.schoolName || 'SD Negeri'}</p>
+                        <p className="font-bold leading-snug">{schoolInfo.headmasterTitle || 'Kepala Sekolah'} {schoolInfo.schoolName || 'SD Negeri'}</p>
                         <div className="h-16 print:h-20" />
                         <p className="font-bold underline uppercase tracking-wide leading-snug">
                           {schoolInfo.headmasterName || 'NAMA KEPALA SEKOLAH, M.Pd.'}
