@@ -82,3 +82,7 @@ export async function testConnection(): Promise<boolean> {
     return false;
   }
 }
+
+if (typeof window !== 'undefined') {
+  testConnection();
+}

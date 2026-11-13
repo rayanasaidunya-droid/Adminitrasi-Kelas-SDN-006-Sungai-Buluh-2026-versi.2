@@ -201,7 +201,7 @@ export const ImportExcelView: React.FC = () => {
 
       switch (activeCategory) {
         case 'siswa':
-          wb = generateStudentTemplate(subjects);
+          wb = generateStudentTemplate(subjects, schoolInfo.className);
           break;
         case 'guru':
           wb = generateTeacherTemplate();
@@ -225,7 +225,7 @@ export const ImportExcelView: React.FC = () => {
           wb = generateTPTemplate(subjects, selectedSubjectId || undefined, tujuanPembelajaranList);
           break;
         default:
-          wb = generateStudentTemplate(subjects);
+          wb = generateStudentTemplate(subjects, schoolInfo.className);
       }
 
       downloadWorkbook(wb, filename);
@@ -833,6 +833,7 @@ export const ImportExcelView: React.FC = () => {
                           <th className="p-2.5">Nama Siswa</th>
                           <th className="p-2.5">JK</th>
                           <th className="p-2.5">Orang Tua</th>
+                          <th className="p-2.5">No HP</th>
                           <th className="p-2.5">Kelas</th>
                         </>
                       )}
@@ -911,6 +912,7 @@ export const ImportExcelView: React.FC = () => {
                               </span>
                             </td>
                             <td className="p-2.5 text-[11px]">{row.namaAyah || row.namaIbu || '-'}</td>
+                            <td className="p-2.5 font-mono text-[11px]">{row.noHpOrtu || '-'}</td>
                             <td className="p-2.5">{row.kelas}</td>
                           </>
                         )}

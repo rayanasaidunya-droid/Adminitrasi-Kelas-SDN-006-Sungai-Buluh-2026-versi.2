@@ -39,6 +39,7 @@ import {
 import {
   downloadWorkbook,
   generateStudentTemplate,
+  exportStudentsToExcel,
   parseExcelFile,
   findStudentWorksheet,
   parseStudentsFromSheet
@@ -145,7 +146,7 @@ export const DataSiswaView: React.FC = () => {
   };
 
   const handleDownloadStudentTemplate = () => {
-    const wb = generateStudentTemplate();
+    const wb = generateStudentTemplate([], schoolInfo.className);
     downloadWorkbook(wb, `Template_Data_Siswa_${schoolInfo.className.replace(/\s+/g, '_')}.xlsx`);
     addToast('success', 'Template Diunduh', 'Gunakan template ini untuk mengisi data siswa & buku induk.');
   };
@@ -272,33 +273,11 @@ export const DataSiswaView: React.FC = () => {
     }
   };
 
-  const handleExportCsv = () => {
-    const headers = ['No Absen', 'NISN', 'NIS', 'Nama Siswa', 'JK', 'Tempat Lahir', 'Tanggal Lahir', 'Agama', 'Nama Ayah', 'Nama Ibu', 'No HP Ortu', 'Alamat', 'Status'];
-    const rows = students.map(s => [
-      s.nomorAbsen,
-      `'${s.nisn}`,
-      s.nis,
-      `"${s.nama}"`,
-      s.jenisKelamin === 'L' ? 'Laki-laki' : 'Perempuan',
-      s.tempatLahir,
-      s.tanggalLahir,
-      s.agama,
-      `"${s.namaAyah}"`,
-      `"${s.namaIbu}"`,
-      `'${s.noHpOrtu}`,
-      `"${s.alamat}"`,
-      s.status
-    ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Buku_Induk_Siswa_${schoolInfo.className.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    addToast('success', 'Ekspor Berhasil', 'File CSV Buku Induk Siswa telah berhasil diunduh.');
+  const handleExportExcel = () => {
+    const wb = exportStudentsToExcel(students, schoolInfo.className);
+    const filename = `Buku_Induk_Siswa_${schoolInfo.className.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    downloadWorkbook(wb, filename);
+    addToast('success', 'Ekspor Berhasil', 'File Excel (.xlsx) Buku Induk Siswa telah berhasil diunduh.');
   };
 
   const isTeacherOrAdmin = currentUser.role !== 'siswa';
@@ -376,11 +355,11 @@ export const DataSiswaView: React.FC = () => {
             </button>
 
             <button
-              onClick={handleExportCsv}
+              onClick={handleExportExcel}
               className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             >
-              <Download className="h-4 w-4 text-slate-500" />
-              <span>Ekspor CSV</span>
+              <Download className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Ekspor Excel (.xlsx)</span>
             </button>
           </div>
         </div>

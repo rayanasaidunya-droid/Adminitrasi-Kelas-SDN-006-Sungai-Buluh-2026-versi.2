@@ -13,6 +13,7 @@
         "phase": { "type": "string", "maxLength": 100 },
         "homeroomTeacherName": { "type": "string", "maxLength": 150 },
         "homeroomTeacherNip": { "type": "string", "maxLength": 100 },
+        "headmasterTitle": { "type": "string", "maxLength": 100 },
         "headmasterName": { "type": "string", "maxLength": 150 },
         "headmasterNip": { "type": "string", "maxLength": 100 },
         "schoolAddress": { "type": "string", "maxLength": 300 },

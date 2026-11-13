@@ -52,11 +52,29 @@ export const COLLECTIONS = {
   NOTES: 'studentNotes'
 };
 
+// Recursively strip undefined values so Firestore setDoc/batch.set never fail on optional fields
+function sanitizeForFirestore<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map(item => sanitizeForFirestore(item)) as unknown as T;
+  }
+  if (value !== null && typeof value === 'object' && !(value instanceof Date)) {
+    const cleaned: Record<string, any> = {};
+    for (const [k, v] of Object.entries(value)) {
+      if (v !== undefined) {
+        cleaned[k] = sanitizeForFirestore(v);
+      }
+    }
+    return cleaned as T;
+  }
+  return value;
+}
+
 // Generic single document save with error handling
 export async function saveDocument<T extends Record<string, any>>(collectionName: string, docId: string, data: T) {
   try {
+    if (!docId || typeof docId !== 'string') return;
     const docRef = doc(db, collectionName, docId);
-    await setDoc(docRef, data, { merge: true });
+    await setDoc(docRef, sanitizeForFirestore(data), { merge: true });
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, `${collectionName}/${docId}`);
   }
@@ -65,6 +83,7 @@ export async function saveDocument<T extends Record<string, any>>(collectionName
 // Generic single document delete with error handling
 export async function removeDocument(collectionName: string, docId: string) {
   try {
+    if (!docId || typeof docId !== 'string') return;
     const docRef = doc(db, collectionName, docId);
     await deleteDoc(docRef);
   } catch (error) {
@@ -86,7 +105,7 @@ export async function seedCollectionIfEmpty<T extends { id?: string }>(
       for (const item of initialItems) {
         const id = getId(item);
         const docRef = doc(db, collectionName, id);
-        batch.set(docRef, item);
+        batch.set(docRef, sanitizeForFirestore(item));
       }
       await batch.commit();
       console.log(`[Firebase] Initialized collection ${collectionName} with ${initialItems.length} records.`);

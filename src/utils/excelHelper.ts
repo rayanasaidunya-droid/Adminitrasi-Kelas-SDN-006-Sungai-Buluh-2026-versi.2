@@ -19,7 +19,10 @@ export function downloadWorkbook(workbook: XLSX.WorkBook, filename: string) {
 }
 
 // 1. TEMPLATE DATA SISWA
-export function generateStudentTemplate(existingSubjects: Subject[] = []): XLSX.WorkBook {
+export function generateStudentTemplate(
+  existingSubjects: Subject[] = [],
+  defaultClassName: string = 'Kelas 4A'
+): XLSX.WorkBook {
   const wb = XLSX.utils.book_new();
 
   const headers = [
@@ -67,7 +70,7 @@ export function generateStudentTemplate(existingSubjects: Subject[] = []): XLSX.
       'Karyawan Swasta',
       '081234567890',
       'Aktif',
-      'Kelas 4A',
+      defaultClassName,
       'Tertarik di bidang sains'
     ],
     [
@@ -90,7 +93,7 @@ export function generateStudentTemplate(existingSubjects: Subject[] = []): XLSX.
       'Wiraswasta',
       '081398765432',
       'Aktif',
-      'Kelas 4A',
+      defaultClassName,
       'Aktif dalam kegiatan pramuka'
     ],
     [
@@ -113,31 +116,59 @@ export function generateStudentTemplate(existingSubjects: Subject[] = []): XLSX.
       'PNS / Guru',
       '081223344556',
       'Aktif',
-      'Kelas 4A',
+      defaultClassName,
       'Memerlukan pendampingan membaca'
     ]
   ];
 
   const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleData]);
 
-  // Set column widths
+  // Format text-sensitive columns (NISN, NIS, Tanggal Lahir, Diterima pada Tanggal, No HP / WhatsApp Orang Tua) as Text ('@')
+  // across sample rows and empty rows up to row 100 so Excel preserves leading zeros (0812...)
+  const textColIndices = [1, 2, 6, 12, 17];
+  const maxTemplateRow = 100;
+  for (let r = 1; r <= maxTemplateRow; r++) {
+    for (const c of textColIndices) {
+      const addr = XLSX.utils.encode_cell({ r, c });
+      if (ws[addr]) {
+        ws[addr].t = 's';
+        ws[addr].z = '@';
+        if (ws[addr].v !== undefined && ws[addr].v !== null) {
+          ws[addr].v = String(ws[addr].v);
+        }
+      } else {
+        ws[addr] = { t: 's', v: '', z: '@' };
+      }
+    }
+  }
+  ws['!ref'] = XLSX.utils.encode_range({
+    s: { r: 0, c: 0 },
+    e: { r: Math.max(sampleData.length, maxTemplateRow), c: headers.length - 1 }
+  });
+
+  // Set column widths for all 21 columns
   ws['!cols'] = [
-    { wch: 10 }, // No Absen
-    { wch: 15 }, // NISN
-    { wch: 12 }, // NIS
-    { wch: 28 }, // Nama
-    { wch: 18 }, // JK
-    { wch: 15 }, // Tempat Lahir
-    { wch: 22 }, // Tgl Lahir
-    { wch: 12 }, // Agama
-    { wch: 35 }, // Alamat
-    { wch: 22 }, // Nama Ayah
-    { wch: 22 }, // Nama Ibu
-    { wch: 20 }, // Pekerjaan
-    { wch: 22 }, // No HP
-    { wch: 16 }, // Status
-    { wch: 12 }, // Kelas
-    { wch: 30 }  // Catatan
+    { wch: 10 }, // 0: No Absen
+    { wch: 16 }, // 1: NISN
+    { wch: 14 }, // 2: NIS
+    { wch: 28 }, // 3: Nama Lengkap Siswa
+    { wch: 20 }, // 4: Jenis Kelamin (L/P)
+    { wch: 16 }, // 5: Tempat Lahir
+    { wch: 24 }, // 6: Tanggal Lahir
+    { wch: 14 }, // 7: Agama
+    { wch: 22 }, // 8: Status dalam Keluarga
+    { wch: 10 }, // 9: Anak Ke
+    { wch: 24 }, // 10: Sekolah Asal
+    { wch: 18 }, // 11: Diterima di Kelas
+    { wch: 22 }, // 12: Diterima pada Tanggal
+    { wch: 35 }, // 13: Alamat Lengkap
+    { wch: 22 }, // 14: Nama Ayah
+    { wch: 22 }, // 15: Nama Ibu
+    { wch: 22 }, // 16: Pekerjaan Orang Tua
+    { wch: 28 }, // 17: No HP / WhatsApp Orang Tua
+    { wch: 24 }, // 18: Status
+    { wch: 14 }, // 19: Kelas
+    { wch: 30 }  // 20: Catatan Khusus
   ];
 
   XLSX.utils.book_append_sheet(wb, ws, 'Data_Siswa');
@@ -146,18 +177,116 @@ export function generateStudentTemplate(existingSubjects: Subject[] = []): XLSX.
   const petunjukHeaders = ['Kolom', 'Keterangan', 'Contoh Pengisian / Aturan'];
   const petunjukData = [
     ['No Absen', 'Nomor urut absen siswa (angka)', '1, 2, 3, dst.'],
-    ['NISN', 'Nomor Induk Siswa Nasional (10 digit angka, Wajib)', '0123456789'],
-    ['NIS', 'Nomor Induk Sekolah', '202401'],
+    ['NISN', 'Nomor Induk Siswa Nasional (10 digit angka, Wajib, format Teks)', '0123456789'],
+    ['NIS', 'Nomor Induk Sekolah (format Teks)', '202401'],
     ['Nama Lengkap Siswa', 'Nama lengkap siswa sesuai akta (Wajib)', 'Ahmad Fadilah'],
     ['Jenis Kelamin (L/P)', 'L = Laki-laki, P = Perempuan (Wajib)', 'L atau P'],
-    ['Tanggal Lahir', 'Format tahun-bulan-tanggal', '2015-05-12'],
+    ['Tanggal Lahir', 'Format tahun-bulan-tanggal (YYYY-MM-DD)', '2015-05-12'],
     ['Agama', 'Pilihan: Islam, Kristen, Katolik, Hindu, Buddha, Konghucu', 'Islam'],
+    ['No HP / WhatsApp Orang Tua', 'Kolom sudah berformat Teks agar angka 0 di depan tidak hilang', '081234567890 atau 0812-3456-7890'],
     ['Status', 'Pilihan: Aktif, Mutasi, Lulus, Non-aktif', 'Aktif']
   ];
   const wsPetunjuk = XLSX.utils.aoa_to_sheet([petunjukHeaders, ...petunjukData]);
-  wsPetunjuk['!cols'] = [{ wch: 25 }, { wch: 45 }, { wch: 35 }];
+  wsPetunjuk['!cols'] = [{ wch: 28 }, { wch: 52 }, { wch: 36 }];
   XLSX.utils.book_append_sheet(wb, wsPetunjuk, 'Panduan_Pengisian');
 
+  return wb;
+}
+
+// 1B. EXPORT BUKU INDUK SISWA KE EXCEL (.xlsx)
+export function exportStudentsToExcel(students: Student[], className: string = ''): XLSX.WorkBook {
+  const wb = XLSX.utils.book_new();
+
+  const headers = [
+    'No Absen',
+    'NISN',
+    'NIS',
+    'Nama Lengkap Siswa',
+    'Jenis Kelamin (L/P)',
+    'Tempat Lahir',
+    'Tanggal Lahir (YYYY-MM-DD)',
+    'Agama',
+    'Status dalam Keluarga',
+    'Anak Ke',
+    'Sekolah Asal (TK/PAUD)',
+    'Diterima di Kelas',
+    'Diterima pada Tanggal',
+    'Alamat Lengkap',
+    'Nama Ayah',
+    'Nama Ibu',
+    'Pekerjaan Orang Tua',
+    'No HP / WhatsApp Orang Tua',
+    'Status (Aktif/Mutasi/Lulus)',
+    'Kelas',
+    'Catatan Khusus'
+  ];
+
+  const rows = students.map((s, idx) => [
+    s.nomorAbsen || idx + 1,
+    String(s.nisn || ''),
+    String(s.nis || ''),
+    s.nama || '',
+    s.jenisKelamin || 'L',
+    s.tempatLahir || '',
+    s.tanggalLahir || '',
+    s.agama || 'Islam',
+    s.statusDalamKeluarga || 'Anak Kandung',
+    s.anakKe !== undefined && s.anakKe !== null ? String(s.anakKe) : '1',
+    s.sekolahAsal || '',
+    s.diterimaDiKelas || '',
+    s.diterimaTanggal || '',
+    s.alamat || '',
+    s.namaAyah || '',
+    s.namaIbu || '',
+    s.pekerjaanOrtu || '',
+    String(s.noHpOrtu || ''),
+    s.status || 'Aktif',
+    s.kelas || className || '',
+    s.catatanKhusus || ''
+  ]);
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+  // Ensure text format for NISN, NIS, Tanggal Lahir, Diterima Tanggal, and No HP
+  const textColIndices = [1, 2, 6, 12, 17];
+  for (let r = 1; r <= rows.length; r++) {
+    for (const c of textColIndices) {
+      const addr = XLSX.utils.encode_cell({ r, c });
+      if (ws[addr]) {
+        ws[addr].t = 's';
+        ws[addr].z = '@';
+        if (ws[addr].v !== undefined && ws[addr].v !== null) {
+          ws[addr].v = String(ws[addr].v);
+        }
+      }
+    }
+  }
+
+  ws['!cols'] = [
+    { wch: 10 },
+    { wch: 16 },
+    { wch: 14 },
+    { wch: 28 },
+    { wch: 20 },
+    { wch: 16 },
+    { wch: 24 },
+    { wch: 14 },
+    { wch: 22 },
+    { wch: 10 },
+    { wch: 24 },
+    { wch: 18 },
+    { wch: 22 },
+    { wch: 35 },
+    { wch: 22 },
+    { wch: 22 },
+    { wch: 22 },
+    { wch: 28 },
+    { wch: 24 },
+    { wch: 14 },
+    { wch: 30 }
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Data_Siswa');
   return wb;
 }
 
@@ -1026,12 +1155,22 @@ export function parseStudentsFromSheet(ws: XLSX.WorkSheet, defaultClass: string 
   const colAyah = findCol(/ayah|bapak/i);
   const colIbu = findCol(/ibu/i);
   const colPekerjaan = findCol(/pekerjaan/i);
-  const colHp = findCol(/hp|wa|whatsapp|telepon|ponsel|kontak/i);
-  const colStatus = findCol(/status/i);
-  const colKelas = findCol(/kelas|rombel/i);
+  const colHp = findCol(/(\bhp\b|no\.?\s*hp|no\.?\s*wa|\bwa\b|whatsapp|telepon|telp|ponsel|handphone|kontak|no_hp|hp_ortu)/i);
+  const colStatus = findCol(/status/i, /keluarga/i);
+  const colKelas = findCol(/kelas|rombel/i, /diterima/i);
   const colCatatan = findCol(/catatan|keterangan/i);
 
-  const dataRows = aoa.slice(headerRowIndex + 1);
+  const rawDataRows = aoa.slice(headerRowIndex + 1);
+  // Trim trailing completely empty rows (e.g., from pre-formatted template cells)
+  let lastNonEmptyIdx = rawDataRows.length - 1;
+  while (
+    lastNonEmptyIdx >= 0 &&
+    (!Array.isArray(rawDataRows[lastNonEmptyIdx]) ||
+      !rawDataRows[lastNonEmptyIdx].some(cell => String(cell ?? '').trim() !== ''))
+  ) {
+    lastNonEmptyIdx--;
+  }
+  const dataRows = rawDataRows.slice(0, lastNonEmptyIdx + 1);
 
   dataRows.forEach((row, rowOffset) => {
     const actualRowNum = headerRowIndex + rowOffset + 2;
@@ -1120,7 +1259,15 @@ export function parseStudentsFromSheet(ws: XLSX.WorkSheet, defaultClass: string 
     const namaAyah = String(colAyah >= 0 ? getVal(colAyah) : '').trim();
     const namaIbu = String(colIbu >= 0 ? getVal(colIbu) : '').trim();
     const pekerjaanOrtu = String(colPekerjaan >= 0 ? getVal(colPekerjaan) : '').trim();
-    const noHpOrtu = String(colHp >= 0 ? getVal(colHp) : '').trim();
+    const rawHp = colHp >= 0 ? getVal(colHp) : '';
+    let noHpOrtu = '';
+    if (typeof rawHp === 'number' && !isNaN(rawHp)) {
+      const numStr = rawHp.toLocaleString('fullwide', { useGrouping: false }).trim();
+      // Restore leading '0' if Excel converted an Indonesian mobile/phone number (08...) into a number
+      noHpOrtu = /^8\d{7,13}$/.test(numStr) ? `0${numStr}` : numStr;
+    } else {
+      noHpOrtu = String(rawHp ?? '').trim().replace(/^'+/, '');
+    }
     
     // Status
     const rawStatus = String(colStatus >= 0 ? getVal(colStatus) : 'Aktif').trim().toLowerCase();
@@ -1167,7 +1314,7 @@ export function parseStudentsFromSheet(ws: XLSX.WorkSheet, defaultClass: string 
       namaAyah: namaAyah || '-',
       namaIbu: namaIbu || '-',
       pekerjaanOrtu: pekerjaanOrtu || 'Wiraswasta',
-      noHpOrtu: noHpOrtu || '081234567890',
+      noHpOrtu: noHpOrtu || '-',
       fotoUrl,
       status,
       kelas,
